@@ -28,9 +28,9 @@ export const useAuthStore = defineStore('auth', () => {
 
       isAuthenticated.value = true
       localStorage.setItem('isAuthenticated', 'true')
-    } catch (error) {
-      console.error('Ошибка авторизации', error)
-      throw new Error('Неверные данные')
+    } catch (error:any) {
+      const errorMessage = error?.data?.error || 'Неизвестная ошибка'
+      throw new Error(errorMessage)
     }
   }
 
@@ -43,8 +43,9 @@ export const useAuthStore = defineStore('auth', () => {
       })
       isAuthenticated.value = false
       localStorage.removeItem('isAuthenticated')
-    } catch(error) {
-      console.error('Ошибка выхода', error)
+    } catch(error: any) {
+      const errorMessage = error?.data?.error || 'Неизвестная ошибка'
+      throw new Error(errorMessage)
     }
   }
 
