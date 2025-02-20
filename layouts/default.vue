@@ -27,7 +27,6 @@
 </template>
 
 <script lang="ts" setup>
-const isLoadingStore = useIsLoadingStore()
 const router = useRouter()
 const authStore = useAuthStore()
 
@@ -40,8 +39,6 @@ onMounted(async () => {
     }
   } catch(err) {
     await router.push('/auth/login')
-  } finally {
-    isLoadingStore.set(false)
   }
 })
 

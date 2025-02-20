@@ -1,6 +1,13 @@
 <template>
   <div class="overflow-auto relative">
-    <table v-if="statistics.length > 0" class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
+    <SkeletonLoader 
+      v-if="loading" 
+      type="table" 
+      :count="5"
+      containerClass="w-full space-y-2"
+    />
+
+    <table v-else-if="statistics.length > 0" class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
       <thead>
         <tr class="shadow-sm rounded-lg">
           <th class="table-header rounded-s-lg">Порядковый номер</th>
@@ -25,6 +32,7 @@
         </tr>
       </tbody>
     </table>
+
     <div v-else class="flex justify-center">
       <h3 class="text-xl">Список диалогов пуст</h3>
     </div>
@@ -34,12 +42,15 @@
 <script lang="ts" setup>
 const statisticStore = useStatisticStore()
 const router = useRouter()
-
+const loading = ref(true)
 const statistics = ref<StatisticsPreview[]>([])
 
 onMounted(async () => {
   await statisticStore.getStatistics()
   statistics.value = statisticStore.statistics
+  setTimeout(() => {
+    loading.value = false
+  }, 500)
 })
 
 const onClickDialog = (id: string) => {
