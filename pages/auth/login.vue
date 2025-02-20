@@ -59,6 +59,7 @@ const form = ref<PAYLOAD>({
 
 const authStore = useAuthStore()
 const router = useRouter()
+const loaderStore = useLoaderStore()
 
 const errorMessage = ref<string | null>(null)
 
@@ -66,10 +67,13 @@ const onSubmit = async () => {
   errorMessage.value = null
 
   try {
+    loaderStore.showLoader()
     await authStore.login(form.value.username, form.value.password)
     await router.push('/')
   } catch(err) {
     errorMessage.value = err instanceof Error ? err.message : 'Ошибка авторизации'
+  } finally {
+    loaderStore.hideLoader()
   }
 }
 

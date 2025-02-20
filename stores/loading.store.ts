@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 
-export const useIsLoadingStore = defineStore('isLoading', () => {
-  const isLoading = ref(true)
+export const useLoaderStore = defineStore('loader', () => {
+  const isLoading = ref<boolean>(false)
 
-  function set(data: boolean) {
-    isLoading.value = data
+  const showLoader = () => {
+    isLoading.value = true
   }
 
-  return {
-    isLoading,
-    set
+  const hideLoader = () => {
+    isLoading.value = false
   }
+
+  return { isLoading, showLoader, hideLoader }
 })
