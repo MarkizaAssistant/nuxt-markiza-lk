@@ -120,17 +120,24 @@ const loaderStore = useLoaderStore()
 const widget = ref<WidgetInfo>({
   id: Number(route.params.id),
   name: '',
-  domain: '',
+  domain: [],
   isActive: false,
   manager_tg_id: []
 })
-const settings = ref({
-  websites: '',
+const settings = ref<{
+  websites: string[]
+  behavior: {
+    isPopupEnabled: boolean
+    startMessage: string
+  }
+  telegramIds: string[]
+}>({
+  websites: [],
   behavior: {
     isPopupEnabled: true,
     startMessage: 'Привет! Как я могу вам помочь?'
   },
-  telegramIds: [] as string[]
+  telegramIds: []
 })
 
 onMounted(async () => {
@@ -193,7 +200,7 @@ const tabs = [
   { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
 ]
 
-const updateWebsites = (newWebsites: string) => {
+const updateWebsites = (newWebsites: string[]) => {
   settings.value.websites = newWebsites
 }
 

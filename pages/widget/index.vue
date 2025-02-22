@@ -12,10 +12,24 @@
 
     <div class="overflow-y-auto h-[600px] pr-2 widget-grid">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="widget in widgets" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm transition-transform transform hover:shadow-md">
+        <div v-for="widget in widgets" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
+          <button 
+            @click="openDeleteModal(widget.id)"
+            class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
+          >
+            <Icon name="ic:outline-delete" class="w-6 h-6" />
+          </button>
+          
           <div class="flex flex-col gap-2">
             <div class="text-lg font-bold">{{ widget.name }}</div>
-            <div class="text-sm text-gray-600">{{ widget.domain }}</div>
+            <div class="text-sm text-gray-600">
+              <span v-for="(domain, index) in widget.domain.slice(0, 2)" :key="index">
+                {{ domain }}{{ index < widget.domain.length - 1 ? ',' : '' }}
+              </span>
+              <span v-if="widget.domain.length > 2" class="text-blue-500 cursor-pointer">
+                +{{ widget.domain.length - 2 }} доменов
+              </span>
+            </div>
             <div class="text-sm">
               <span :class="widget.isActive ? 'text-green-600' : 'text-red-600'">
                 {{ widget.isActive ? 'Активен' : 'Неактивен' }}
@@ -34,6 +48,18 @@
       </div>
     </div>
   </div>
+
+  <!-- Модальное окно удаления -->
+  <Modal
+    v-if="showDeleteModal"
+    :show="showDeleteModal"
+    title="Удаление виджета"
+    message="При удалении виджета удалятся все чаты, связанные с ним. Вы действительно хотите удалить?"
+    confirmText="Удалить"
+    cancelText="Отмена"
+    @confirm="deleteWidget"
+    @cancel="showDeleteModal = false"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -44,6 +70,8 @@ useSeoMeta({
 
 const widgetStore = useWidgetStore()
 const widgets = ref<WidgetPreview[]>([])
+const showDeleteModal = ref(false)
+const widgetToDelete = ref<number | null>(null)
 
 onMounted(async () => {
   await widgetStore.getWidgetsPreview()
@@ -60,6 +88,23 @@ const AddWidget = async () => {
   } catch (error) {
     console.error('Ошибка при создании виджета:', error)
   }
+}
+
+const openDeleteModal = (id: number) => {
+  widgetToDelete.value = id
+  showDeleteModal.value = true
+}
+
+const deleteWidget = async () => {
+  if (widgetToDelete.value !== null) {
+    try {
+      // await widgetStore.deleteWidget(widgetToDelete.value)
+      widgets.value = widgets.value.filter(widget => widget.id !== widgetToDelete.value)
+    } catch (error) {
+      console.error('Ошибка при удалении виджета:', error)
+    }
+  }
+  showDeleteModal.value = false
 }
 </script>
 

@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export interface WidgetPreview {
   id: number,
   name: string,
-  domain: string,
+  domain: string[],
   isActive: boolean
 }
 
