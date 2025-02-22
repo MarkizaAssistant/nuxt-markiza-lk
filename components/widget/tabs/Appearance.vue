@@ -1,6 +1,6 @@
 <template>
   <div>
-    
+    Настройка визуала
   </div>
 </template>
 

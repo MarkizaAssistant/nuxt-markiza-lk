@@ -1,6 +1,6 @@
 <template>
   <div>
-    
+    Код будет генерироваться тут
   </div>
 </template>
 

@@ -7,8 +7,14 @@ export const useCsrf = async (): Promise<string> => {
     credentials: 'include'
   })
 
-  return document.cookie
+  const csrfToken = document.cookie
     .split(';')
     .find(row => row.startsWith('csrftoken='))
     ?.split('=')[1] || ''
+
+  if (!csrfToken) {
+    throw new Error('CSRF token not found in cookies')
+  }
+
+  return csrfToken
 }
