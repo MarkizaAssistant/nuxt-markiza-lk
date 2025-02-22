@@ -12,8 +12,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (username: string, password: string) => {
     try {
-      await useCsrf()
-
       const body = new URLSearchParams();
       body.append('username', username);
       body.append('password', password);
@@ -36,8 +34,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const logout = async () => {
     try {
-      await useCsrf()
-
       await useApi('/auth/logout/', {
         method: 'POST'
       })
