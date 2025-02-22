@@ -8,7 +8,6 @@ export interface WidgetPreview {
 }
 
 export interface WidgetInfo extends WidgetPreview {
-  created_by: number,
   manager_tg_id: string[]
 }
 
@@ -38,25 +37,41 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
-  const createWidget = async () => {
+  const createWidget = async (): Promise<number> => {
     try {
-      await useApi('/api/v1/widget-settings/create/', {
+      const response = await useApi<{ widget_id: number }>('/api/v1/widget-settings/create/', {
         method: 'POST'
       })
+      const widgetId = response.widget_id
+
+      await useApi(`/api/v1/widget-settings/${widgetId}/update/`, {
+        method: 'PATCH',
+        body: {
+          name: `Новый виджет ${widgetId}`,
+        }
+      })
+
+      return widgetId
     } catch (error) {
       console.error('Ошибка создания виджета', error)
       throw new Error('Ошибка создания виджета')
     }
   }
 
-  const addSettings = async (widgetId: number) => {
+  const addSettings = async (widgetInfo: WidgetInfo) => {
     try {
-      await useApi(`/api/v1/widget-settings/${widgetId}/update/`, {
-        method: 'PATCH'
+      await useApi(`/api/v1/widget-settings/${widgetInfo.id}/update/`, {
+        method: 'PATCH',
+        body: {
+          name: widgetInfo.name,
+          is_active: widgetInfo.isActive,
+          manager_tg_id: widgetInfo.manager_tg_id,
+          domain: widgetInfo.domain
+        }
       })
     } catch (error) {
-      console.error(`Ошибка добавления настроек для виджета ${widgetId}`, error)
-      throw new Error(`Ошибка добавления настроек для виджета ${widgetId}`)
+      console.error(`Ошибка добавления настроек для виджета ${widgetInfo.id}`, error)
+      throw new Error(`Ошибка добавления настроек для виджета ${widgetInfo.id}`)
     }
   }
 
