@@ -50,6 +50,10 @@ const statisticStore = useStatisticStore()
 const chat = ref<PersonalDialog[]>([])
 const loading = ref(true)
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 onMounted(async () => {
   await statisticStore.getChat(Number(route.params.id))
   chat.value = statisticStore.chat

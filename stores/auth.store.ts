@@ -1,32 +1,25 @@
 import { defineStore } from 'pinia'
-import { onMounted } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-  const isAuthenticated = ref<boolean>(false)
-
-  onMounted(() => {
-    if (localStorage.getItem('isAuthenticated')) {
-      isAuthenticated.value = true
-    }
+  const authCookie = useCookie<boolean>('isAuthenticated', {
+    default: () => false
   })
+
+  const isAuthenticated = ref(authCookie.value)
+
+  watch(isAuthenticated, (newValue) => {
+    authCookie.value = newValue
+  }, { immediate: true })
 
   const login = async (username: string, password: string) => {
     try {
-      const body = new URLSearchParams();
-      body.append('username', username);
-      body.append('password', password);
-
       await useApi('/auth/login/', {
         method: 'POST',
-        body,
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+        body: JSON.stringify({ username, password }),
       })
 
       isAuthenticated.value = true
-      localStorage.setItem('isAuthenticated', 'true')
-    } catch (error:any) {
+    } catch (error: any) {
       const errorMessage = error?.data?.error || 'Неизвестная ошибка'
       throw new Error(errorMessage)
     }
@@ -35,11 +28,11 @@ export const useAuthStore = defineStore('auth', () => {
   const logout = async () => {
     try {
       await useApi('/auth/logout/', {
-        method: 'POST'
+        method: 'POST',
       })
+
       isAuthenticated.value = false
-      localStorage.removeItem('isAuthenticated')
-    } catch(error: any) {
+    } catch (error: any) {
       const errorMessage = error?.data?.error || 'Неизвестная ошибка'
       throw new Error(errorMessage)
     }
@@ -48,6 +41,6 @@ export const useAuthStore = defineStore('auth', () => {
   return {
     isAuthenticated,
     login,
-    logout
+    logout,
   }
 })

@@ -68,6 +68,10 @@ useSeoMeta({
   description: 'Страница виджета'
 })
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const widgetStore = useWidgetStore()
 const widgets = ref<WidgetPreview[]>([])
 const showDeleteModal = ref(false)

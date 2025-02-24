@@ -9,6 +9,10 @@ useSeoMeta({
   title: 'Платежи',
   description: 'Страница с платежами'
 })
+
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
 
 <style>

@@ -9,6 +9,10 @@ useSeoMeta({
   title: 'Главная страница',
   description: 'Главная страница сайта'
 })
+
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
 
 <style>

@@ -2,14 +2,13 @@ export const useApi = async <T>(url: string, options: any = {}) => {
   const config = useRuntimeConfig()
   const authStore = useAuthStore()
 
-  const csrfToken = await useCsrf()
-
   let headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   }
 
   if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method.toUpperCase())) {
+    const csrfToken = await useCsrf()
     headers['X-CSRFToken'] = csrfToken
   }
 

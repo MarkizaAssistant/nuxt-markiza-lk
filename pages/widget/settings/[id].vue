@@ -117,6 +117,10 @@ const route = useRoute()
 const widgetStore = useWidgetStore()
 const loaderStore = useLoaderStore()
 
+definePageMeta({
+  middleware: 'auth'
+})
+
 const widget = ref<WidgetInfo>({
   id: Number(route.params.id),
   name: '',
