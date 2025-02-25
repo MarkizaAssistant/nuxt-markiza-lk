@@ -22,14 +22,6 @@
           
           <div class="flex flex-col gap-2">
             <div class="text-lg font-bold">{{ widget.name }}</div>
-            <div class="text-sm text-gray-600">
-              <span v-for="(domain, index) in widget.domain.slice(0, 2)" :key="index">
-                {{ domain }}{{ index < widget.domain.length - 1 ? ',' : '' }}
-              </span>
-              <span v-if="widget.domain.length > 2" class="text-blue-500 cursor-pointer">
-                +{{ widget.domain.length - 2 }} доменов
-              </span>
-            </div>
             <div class="text-sm">
               <span :class="widget.isActive ? 'text-green-600' : 'text-red-600'">
                 {{ widget.isActive ? 'Активен' : 'Неактивен' }}
@@ -49,7 +41,6 @@
     </div>
   </div>
 
-  <!-- Модальное окно удаления -->
   <Modal
     v-if="showDeleteModal"
     :show="showDeleteModal"
