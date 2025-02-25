@@ -93,7 +93,7 @@ const openDeleteModal = (id: number) => {
 const deleteWidget = async () => {
   if (widgetToDelete.value !== null) {
     try {
-      // await widgetStore.deleteWidget(widgetToDelete.value)
+      await widgetStore.deleteWidget(widgetToDelete.value)
       widgets.value = widgets.value.filter(widget => widget.id !== widgetToDelete.value)
     } catch (error) {
       console.error('Ошибка при удалении виджета:', error)

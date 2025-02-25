@@ -86,11 +86,11 @@
 
       <!-- Content -->
       <div class="mb-4 border rounded-lg p-4 shadow-sm">
-        <!-- <WidgetTabsWebsites
+        <WidgetTabsWebsites
           v-if="activeTab === 'websites'"
           :websites="settings.websites"
           @update:websites="updateWebsites"
-        /> -->
+        />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
         />

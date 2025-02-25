@@ -20,23 +20,7 @@
       {{ errorMessage }}
     </div>
 
-    <div v-if="websites.length > 0" class="mt-4 space-y-2">
-      <div 
-        v-for="(domain, index) in websites" 
-        :key="index" 
-        class="flex justify-between items-center bg-gray-100 p-2 rounded-lg"
-      >
-        <a :href="`https://${domain}/`" target="_blank" class="text-blue-500 hover:underline">
-          {{ domain }}
-        </a>
-        <button 
-          @click="removeWebsite(index)" 
-          class="text-red-500 hover:text-red-700"
-        >
-          <Icon name="ic:outline-close" />
-        </button>
-      </div>
-    </div>
+    
   </div>
 </template>
 

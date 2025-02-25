@@ -58,6 +58,17 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
+  const deleteWidget = async (widgetId: number) => {
+    try {
+      await useApi(`/api/v1/widget-settings/${widgetId}/delete/`, {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.error('Ошибка удаления виджета', error)
+      throw new Error('Ошибка удаления виджета')
+    }
+  }
+
   const addSettings = async (widgetInfo: WidgetInfo) => {
     try {
       await useApi(`/api/v1/widget-settings/${widgetInfo.id}/update/`, {
@@ -81,6 +92,7 @@ export const useWidgetStore = defineStore('widget', () => {
     getWidgetsPreview,
     getWidgetInfo,
     createWidget,
-    addSettings
+    addSettings,
+    deleteWidget
   }
 })
