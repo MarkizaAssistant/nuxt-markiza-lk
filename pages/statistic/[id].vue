@@ -32,7 +32,8 @@
                 <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
               </div>
               <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-                <p class="text-lg">{{ item.message }}</p>
+                <p v-if="item.sender === 'user'" class="text-lg">{{ item.message }}</p>
+                <p v-else class="text-lg" v-html="item.message"></p>
               </div>
               <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
                 <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
