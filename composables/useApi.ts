@@ -1,6 +1,7 @@
 export const useApi = async <T>(url: string, options: any = {}) => {
   const config = useRuntimeConfig()
   const authStore = useAuthStore()
+  const csrfToken = useCookie('csrftoken')
 
   let headers = {
     'Content-Type': 'application/json',
@@ -8,8 +9,7 @@ export const useApi = async <T>(url: string, options: any = {}) => {
   }
 
   if (options.method && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(options.method.toUpperCase())) {
-    const csrfToken = await useCsrf()
-    headers['X-CSRFToken'] = csrfToken
+    headers['X-CSRFToken'] = csrfToken.value
   }
 
   try {

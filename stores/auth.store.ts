@@ -13,6 +13,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (username: string, password: string) => {
     try {
+      await useCsrf()
+      
       await useApi('/auth/login/', {
         method: 'POST',
         body: JSON.stringify({ username, password }),

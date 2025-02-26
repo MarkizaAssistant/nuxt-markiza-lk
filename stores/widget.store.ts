@@ -46,7 +46,7 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
-  const createWidget = async (): Promise<WidgetInfo | undefined> => {
+  const createWidget = async (): Promise<{ widgetId: number, createdWidget: WidgetInfo } | undefined> => {
     try {
       const response = await useApi<{ widget_id: number }>('/api/v1/widget-settings/create/', {
         method: 'POST'
@@ -58,7 +58,10 @@ export const useWidgetStore = defineStore('widget', () => {
         body: { name: `Новый виджет ${widgetId}` },
       })
 
-      return createdWidget
+      return {
+        widgetId,
+        createdWidget
+      }
     } catch (error) {
       handleError('Ошибка создания виджета', error)
     }

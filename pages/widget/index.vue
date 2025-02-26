@@ -75,11 +75,13 @@ onMounted(async () => {
 
 const AddWidget = async () => {
   try {
-    const widgetId = await widgetStore.createWidget()
-    await useRouter().push({
-      path: `/widget/settings/${widgetId}`,
+    const result = await widgetStore.createWidget()
+    if (result) {
+      await useRouter().push({
+      path: `/widget/settings/${result.widgetId}`,
       query: { isNew: 'true' }
     })
+    }
   } catch (error) {
     console.error('Ошибка при создании виджета:', error)
   }
