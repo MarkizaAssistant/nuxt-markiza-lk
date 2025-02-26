@@ -10,6 +10,10 @@ useSeoMeta({
   title: 'Статистика',
   description: 'Страница статистики'
 })
+
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
 
 <style>

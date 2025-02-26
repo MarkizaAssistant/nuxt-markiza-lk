@@ -1,14 +1,18 @@
 export const useCsrf = async (): Promise<string> => {
   const config = useRuntimeConfig()
 
-  await $fetch('/api/v1/csrf/', {
+  const response = await $fetch<{ csrfToken: string }>('/api/v1/csrf/', {
     baseURL: config.public.apiBase,
-    method: 'GET', 
-    credentials: 'include'
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+    }
   })
 
-  return document.cookie
-    .split(';')
-    .find(row => row.startsWith('csrftoken='))
-    ?.split('=')[1] || ''
+  if (!response.csrfToken) {
+    throw new Error('CSRF token not received from server')
+  }
+
+  return response.csrfToken
 }

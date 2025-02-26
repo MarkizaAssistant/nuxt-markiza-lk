@@ -27,23 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-const isLoadingStore = useIsLoadingStore()
-const router = useRouter()
 const authStore = useAuthStore()
-
-onMounted(async () => {
-  try {
-    if (authStore.isAuthenticated) {
-      await router.push('/')
-    } else {
-      await router.push('/auth/login')
-    }
-  } catch(err) {
-    await router.push('/auth/login')
-  } finally {
-    isLoadingStore.set(false)
-  }
-})
 
 const isCollapsed = ref(false)
 

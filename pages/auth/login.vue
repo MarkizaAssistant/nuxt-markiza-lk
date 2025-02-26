@@ -26,6 +26,13 @@
           <Button class="w-full">
             Войти
           </Button>
+
+          <div
+            v-if="errorMessage"
+            class="w-full p-4 bg-red-100 border border-red-400 text-red-700 rounded"
+          >
+            {{ errorMessage }}
+          </div>
         </CardFooter>
       </Card>
 
@@ -52,13 +59,21 @@ const form = ref<PAYLOAD>({
 
 const authStore = useAuthStore()
 const router = useRouter()
+const loaderStore = useLoaderStore()
+
+const errorMessage = ref<string | null>(null)
 
 const onSubmit = async () => {
+  errorMessage.value = null
+
   try {
+    loaderStore.showLoader()
     await authStore.login(form.value.username, form.value.password)
     await router.push('/')
   } catch(err) {
-    console.error(err)
+    errorMessage.value = err instanceof Error ? err.message : 'Ошибка авторизации'
+  } finally {
+    loaderStore.hideLoader()
   }
 }
 

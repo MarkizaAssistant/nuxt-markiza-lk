@@ -1,46 +1,59 @@
 <template>
-  <div class="overflow-auto relative">
-    <table class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
-      <thead>
-        <tr class="shadow-sm rounded-lg">
-          <th class="table-header rounded-s-lg">Порядковый номер</th>
-          <th class="table-header">Дата последнего сообщения</th>
-          <th class="table-header">Тип чата</th>
-          <th class="table-header rounded-e-lg">Избранное</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr 
-          v-for="item in tableData"
-          :key="item.id"
-          class="bg-slate-100 hover:!bg-slate-200 cursor-pointer"
-          @click="onClickDialog(item.id)"
-        >
-          <td class="table-body rounded-s-lg">{{ item.id }}</td>
-          <td class="table-body">{{ item.date }}</td>
-          <td class="table-body">{{ item.type }}</td>
-          <td class="table-body rounded-e-lg">{{ item.other }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="relative">
+    <SkeletonLoader 
+      v-if="loading" 
+      type="table" 
+      :count="5"
+      containerClass="w-full space-y-2"
+    />
+
+    <div v-else-if="statistics.length > 0" class="h-[600px] overflow-y-auto table-container pr-2">
+      <table  class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
+        <thead class="sticky top-0 bg-slate-300">
+          <tr class="shadow-sm rounded-lg">
+            <th class="table-header rounded-s-lg">Порядковый номер</th>
+            <th class="table-header">Дата последнего сообщения</th>
+            <th class="table-header">Тип чата</th>
+            <th class="table-header rounded-e-lg">Избранное</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            v-for="item in statistics" 
+            :key="item.id"
+            class="bg-slate-100 hover:!bg-slate-200 cursor-pointer"
+            @click="onClickDialog(String(item.id))"
+          >
+            <td class="table-body rounded-s-lg">{{ item.id }}</td>
+            <td class="table-body">
+              <time :datetime="$dayjs(item.date_last_message).format('DD.MM.YYYY')">{{ $dayjs(item.date_last_message).format('DD.MM.YYYY') }}</time>
+            </td>
+            <td class="table-body">{{ item.chat_type }}</td>
+            <td class="table-body rounded-e-lg">{{ item.note }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div v-else class="flex justify-center">
+      <h3 class="text-xl">Список диалогов пуст</h3>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-type TABLE_DATA = {
-  id: string,
-  date: string,
-  type: string,
-  other: string
-}
-
-const tableData = ref<TABLE_DATA[]>([
-  { id: '1', date: '06.02.2025', type: 'widget_1', other: 'г' },
-  { id: '2', date: '07.02.2025', type: 'widget_1', other: 'г' },
-  { id: '3', date: '08.02.2025', type: 'telegram', other: 'г' },
-])
-
+const statisticStore = useStatisticStore()
 const router = useRouter()
+const loading = ref(true)
+const statistics = ref<StatisticsPreview[]>([])
+
+onMounted(async () => {
+  await statisticStore.getStatistics()
+  statistics.value = statisticStore.statistics
+  setTimeout(() => {
+    loading.value = false
+  }, 500)
+})
 
 const onClickDialog = (id: string) => {
   router.push(`/statistic/${id}`)
@@ -53,5 +66,20 @@ const onClickDialog = (id: string) => {
 }
 .table-body {
   @apply p-6 border-b text-left
+}
+.table-container::-webkit-scrollbar {
+  @apply w-2
+}
+
+.table-container::-webkit-scrollbar-track {
+  @apply bg-gray-50 rounded-lg
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  @apply rounded-lg bg-slate-700
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-600
 }
 </style>
