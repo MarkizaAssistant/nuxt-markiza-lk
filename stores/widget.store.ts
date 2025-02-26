@@ -6,14 +6,20 @@ export interface WidgetPreview {
   isActive: boolean
 }
 
+export interface Domain {
+  id: number;
+  name: string;
+}
+
+
 export interface WidgetInfo extends WidgetPreview {
-  domain: string[],
+  domains: Domain[],
   manager_tg_id: string[]
 }
 
 export const useWidgetStore = defineStore('widget', () => {
   const widgetsPreview = ref<WidgetPreview[]>([])
-  const widgetInfo = ref<WidgetInfo>()
+  const widgetInfo = ref<WidgetInfo>();  
 
   const getWidgetsPreview = async () => {
     try {
@@ -77,7 +83,7 @@ export const useWidgetStore = defineStore('widget', () => {
           name: widgetInfo.name,
           is_active: widgetInfo.isActive,
           manager_tg_id: widgetInfo.manager_tg_id,
-          domain: widgetInfo.domain
+          domain: widgetInfo.domains
         }
       })
     } catch (error) {
@@ -86,6 +92,31 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
+  const addDomain = async (widgetId: number, domain: string): Promise<{ id: number, name: string }> => {
+    try {
+      const result = await useApi<Domain>(`/api/v1/widget-settings/${widgetId}/domains/create/`, {
+        method: "POST",
+        body: { name: domain },
+      });
+
+      return result
+    } catch (error) {
+      console.error("Ошибка при добавлении домена", error);
+      throw new Error("Ошибка при добавлении домена");
+    }
+  };
+  
+  const deleteDomain = async (domain: Domain) => {
+    try {
+      await useApi(`/api/v1/domains/${domain.id}/delete/`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Ошибка при удалении домена", error);
+      throw new Error("Ошибка при удалении домена");
+    }
+  };
+
   return {
     widgetsPreview,
     widgetInfo,
@@ -93,6 +124,8 @@ export const useWidgetStore = defineStore('widget', () => {
     getWidgetInfo,
     createWidget,
     addSettings,
-    deleteWidget
+    deleteWidget,
+    addDomain,
+    deleteDomain
   }
 })

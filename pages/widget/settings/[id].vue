@@ -88,8 +88,8 @@
       <div class="mb-4 border rounded-lg p-4 shadow-sm">
         <WidgetTabsWebsites
           v-if="activeTab === 'websites'"
-          :websites="settings.websites"
-          @update:websites="updateWebsites"
+          :domains="settings.domains"
+          :widget-id="widget.id"
         />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
@@ -124,19 +124,19 @@ definePageMeta({
 const widget = ref<WidgetInfo>({
   id: Number(route.params.id),
   name: '',
-  domain: [],
+  domains: [],
   isActive: false,
   manager_tg_id: []
 })
 const settings = ref<{
-  websites: string[]
+  domains: Domain[]
   behavior: {
     isPopupEnabled: boolean
     startMessage: string
   }
   telegramIds: string[]
 }>({
-  websites: [],
+  domains: [],
   behavior: {
     isPopupEnabled: true,
     startMessage: 'Привет! Как я могу вам помочь?'
@@ -150,7 +150,7 @@ onMounted(async () => {
     if (widgetStore.widgetInfo) {
       widget.value = widgetStore.widgetInfo
 
-      settings.value.websites = widgetStore.widgetInfo.domain
+      settings.value.domains = widgetStore.widgetInfo.domains
       settings.value.telegramIds = widgetStore.widgetInfo.manager_tg_id
     }
   } else {
@@ -204,8 +204,8 @@ const tabs = [
   { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
 ]
 
-const updateWebsites = (newWebsites: string[]) => {
-  settings.value.websites = newWebsites
+const updateWebsites = (newWebsites: Domain[]) => {
+  settings.value.domains = newWebsites;
 }
 
 const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: string }) => {
@@ -217,18 +217,19 @@ const updateTelegramIds = (newTelegramIds: string[]) => {
 }
 
 const saveSettings = async () => {
-  widget.value.domain = settings.value.websites
-  widget.value.manager_tg_id = settings.value.telegramIds
+  widget.value.domains = settings.value.domains
+  widget.value.manager_tg_id = settings.value.telegramIds;
 
   try {
-    loaderStore.showLoader()
-    await widgetStore.addSettings(widget.value)
+    loaderStore.showLoader();
+    await widgetStore.addSettings(widget.value);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   } finally {
-    loaderStore.hideLoader()
+    loaderStore.hideLoader();
   }
 }
+
 </script>
 
 <style>
