@@ -17,9 +17,14 @@ export interface WidgetInfo extends WidgetPreview {
   manager_tg_id: string[]
 }
 
+const handleError = (action: string, error: any) => {
+  console.error(`${action} не удалось`, error);
+  throw new Error(`${action} не удалось: ${error.message}`);
+}
+
 export const useWidgetStore = defineStore('widget', () => {
   const widgetsPreview = ref<WidgetPreview[]>([])
-  const widgetInfo = ref<WidgetInfo>();  
+  const widgetInfo = ref<WidgetInfo | null>(null);
 
   const getWidgetsPreview = async () => {
     try {
@@ -27,8 +32,7 @@ export const useWidgetStore = defineStore('widget', () => {
         method: 'GET'
       })
     } catch (error) {
-      console.error('Ошибка получения виджетов', error)
-      throw new Error('Ошибка получения виджетов')
+      handleError('Ошибка получения виджетов', error)
     }
   }
 
@@ -38,29 +42,25 @@ export const useWidgetStore = defineStore('widget', () => {
         method: 'GET'
       })
     } catch (error) {
-      console.error(`$Ошибка получения виджета с id ${widgetId}`, error)
-      throw new Error(`$Ошибка получения виджета с id ${widgetId}`)
+      handleError(`Ошибка получения виджета с id ${widgetId}`, error)
     }
   }
 
-  const createWidget = async (): Promise<number> => {
+  const createWidget = async (): Promise<WidgetInfo | undefined> => {
     try {
       const response = await useApi<{ widget_id: number }>('/api/v1/widget-settings/create/', {
         method: 'POST'
       })
       const widgetId = response.widget_id
 
-      await useApi(`/api/v1/widget-settings/${widgetId}/update/`, {
+      const createdWidget = await useApi<WidgetInfo>(`/api/v1/widget-settings/${widgetId}/update/`, {
         method: 'PATCH',
-        body: {
-          name: `Новый виджет ${widgetId}`,
-        }
+        body: { name: `Новый виджет ${widgetId}` },
       })
 
-      return widgetId
+      return createdWidget
     } catch (error) {
-      console.error('Ошибка создания виджета', error)
-      throw new Error('Ошибка создания виджета')
+      handleError('Ошибка создания виджета', error)
     }
   }
 
@@ -70,8 +70,7 @@ export const useWidgetStore = defineStore('widget', () => {
         method: 'DELETE'
       })
     } catch (error) {
-      console.error('Ошибка удаления виджета', error)
-      throw new Error('Ошибка удаления виджета')
+      handleError('Ошибка удаления виджета', error);
     }
   }
 
@@ -82,40 +81,44 @@ export const useWidgetStore = defineStore('widget', () => {
         body: {
           name: widgetInfo.name,
           is_active: widgetInfo.isActive,
-          manager_tg_id: widgetInfo.manager_tg_id,
-          domain: widgetInfo.domains
+          manager_tg_id: widgetInfo.manager_tg_id
         }
       })
     } catch (error) {
-      console.error(`Ошибка добавления настроек для виджета ${widgetInfo.id}`, error)
-      throw new Error(`Ошибка добавления настроек для виджета ${widgetInfo.id}`)
+      handleError(`Ошибка добавления настроек для виджета ${widgetInfo.id}`, error)
     }
   }
 
-  const addDomain = async (widgetId: number, domain: string): Promise<{ id: number, name: string }> => {
+  const addDomain = async (widgetId: number, domain: string): Promise<Domain | undefined> => {
     try {
-      const result = await useApi<Domain>(`/api/v1/widget-settings/${widgetId}/domains/create/`, {
+      const newDomain = await useApi<Domain>(`/api/v1/widget-settings/${widgetId}/domains/create/`, {
         method: "POST",
         body: { name: domain },
-      });
+      })
 
-      return result
+      if (widgetInfo.value) {
+        widgetInfo.value.domains.push(newDomain)
+      }
+
+      return newDomain
     } catch (error) {
-      console.error("Ошибка при добавлении домена", error);
-      throw new Error("Ошибка при добавлении домена");
+      handleError('Ошибка при добавлении домена', error)
     }
   };
   
-  const deleteDomain = async (domain: Domain) => {
+  const deleteDomain = async (domainId: number) => {
     try {
-      await useApi(`/api/v1/domains/${domain.id}/delete/`, {
+      await useApi(`/api/v1/domains/${domainId}/delete/`, {
         method: "DELETE",
-      });
+      })
+
+      if (widgetInfo.value) {
+        widgetInfo.value.domains = widgetInfo.value.domains.filter(d => d.id !== domainId);
+      }
     } catch (error) {
-      console.error("Ошибка при удалении домена", error);
-      throw new Error("Ошибка при удалении домена");
+      handleError('Ошибка при удалении домена', error)
     }
-  };
+  }
 
   return {
     widgetsPreview,

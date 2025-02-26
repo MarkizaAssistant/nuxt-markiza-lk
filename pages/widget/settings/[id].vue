@@ -90,6 +90,7 @@
           v-if="activeTab === 'websites'"
           :domains="settings.domains"
           :widget-id="widget.id"
+          @update:domains="updateDomains"
         />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
@@ -117,8 +118,12 @@ const route = useRoute()
 const widgetStore = useWidgetStore()
 const loaderStore = useLoaderStore()
 
+useSeoMeta({
+  title: `Настройки виджета`
+})
+
 definePageMeta({
-  middleware: 'auth'
+  middleware: 'auth',
 })
 
 const widget = ref<WidgetInfo>({
@@ -157,6 +162,14 @@ onMounted(async () => {
     widget.value.name = `Новый виджет ${widget.value.id}`
   }
 })
+
+watch(() => widgetStore.widgetInfo, (newWidgetInfo) => {
+  if (newWidgetInfo) {
+    widget.value = newWidgetInfo;
+    settings.value.domains = newWidgetInfo.domains;
+    settings.value.telegramIds = newWidgetInfo.manager_tg_id;
+  }
+}, { deep: true })
 
 const isEditing = ref(false)
 const editedName = ref(widget.value.name || '')
@@ -204,8 +217,9 @@ const tabs = [
   { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
 ]
 
-const updateWebsites = (newWebsites: Domain[]) => {
-  settings.value.domains = newWebsites;
+const updateDomains = async () => {
+  await widgetStore.getWidgetInfo(widget.value.id)
+  settings.value.domains = widgetStore.widgetInfo?.domains || [];
 }
 
 const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: string }) => {
