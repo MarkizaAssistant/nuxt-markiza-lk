@@ -17,8 +17,16 @@ export const useAuthStore = defineStore('auth', () => {
     default: () => false
   })
 
-  const user = ref<User | null>(null)
+  const userCookie = useCookie<User | null>('user', {
+    default: () => null
+  })
+
+  const user = ref<User | null>(userCookie.value)
   const isAuthenticated = ref(authCookie.value)
+
+  watch(user, (newUser) => {
+    userCookie.value = newUser
+  }, { immediate: true })
 
   watch(isAuthenticated, (newValue) => {
     authCookie.value = newValue
