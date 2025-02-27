@@ -1,57 +1,52 @@
-# Nuxt Minimal Starter
+# Личный кабинет ЯМАРКИЗА
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Это руководство поможет вам запустить проект "Личный кабинет ЯМАРКИЗА" на вашем локальном компьютере или сервере.
 
-## Setup
+## Предварительные требования
 
-Make sure to install dependencies:
+Перед началом убедитесь, что у вас установлены следующие инструменты:
 
-```bash
-# npm
-npm install
+- [Node.js](https://nodejs.org/) (рекомендуется версия 18 или выше)
+- [npm](https://www.npmjs.com/) (обычно устанавливается вместе с Node.js)
 
-# pnpm
-pnpm install
+## Настройка окружения
 
-# yarn
-yarn install
+1. **Создайте файл `.env`**  
+   В корневой директории проекта создайте файл `.env`. В этом файле нужно указать адрес вашего сервера, на котором развернут backend. Пример содержимого файла:
 
-# bun
-bun install
-```
+   ```env
+   NUXT_API_BASE=http://localhost:8000
+   ```
 
-## Development Server
+   Замените `http://localhost:8000` на адрес вашего сервера.
 
-Start the development server on `http://localhost:3000`:
+## Установка зависимостей
 
-```bash
-# npm
-npm run dev
+2. **Установите зависимости**  
+   Для установки всех необходимых зависимостей выполните команду:
 
-# pnpm
-pnpm dev
+   ```bash
+   npm install
+   ```
 
-# yarn
-yarn dev
+## Сборка проекта
 
-# bun
-bun run dev
-```
+3. **Соберите проект**  
+   После установки зависимостей выполните команду для сборки проекта:
 
-## Production
+   ```bash
+   npm run build
+   ```
 
-Build the application for production:
+  По окончании сборки в корневой директории проекта будет создана папка .output, содержащая собранный проект.
 
-```bash
-# npm
-npm run build
+## Запуск проекта
 
-# pnpm
-pnpm build
+4. **Запустите проект**  
+   Для запуска собранного проекта выполните команду:
 
-# yarn
-yarn build
+   ```bash
+   npm run start
+   ```
 
-# bun
-bun run build
-```
+После этого проект будет доступен по адресу, указанному в консоли (обычно это `http://localhost:3000`).
