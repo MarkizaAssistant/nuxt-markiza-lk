@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export interface WidgetPreview {
   id: number,
   name: string,
-  isActive: boolean
+  is_active: boolean
 }
 
 export interface Domain {
@@ -83,7 +83,7 @@ export const useWidgetStore = defineStore('widget', () => {
         method: 'PATCH',
         body: {
           name: widgetInfo.name,
-          is_active: widgetInfo.isActive,
+          is_active: widgetInfo.is_active,
           manager_tg_id: widgetInfo.manager_tg_id
         }
       })
