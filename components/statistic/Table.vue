@@ -12,14 +12,19 @@
         <thead class="sticky top-0 bg-slate-300">
           <tr class="shadow-sm rounded-lg">
             <th class="table-header rounded-s-lg">Порядковый номер</th>
-            <th class="table-header">Дата последнего сообщения</th>
+            <th class="table-header">
+              <button @click="sortByDate">
+                Дата последнего сообщения
+                <Icon :name="sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'" />
+              </button>
+            </th>
             <th class="table-header">Тип чата</th>
             <th class="table-header rounded-e-lg">Избранное</th>
           </tr>
         </thead>
         <tbody>
           <tr 
-            v-for="item in statistics" 
+            v-for="item in sortedStatistics" 
             :key="item.id"
             class="bg-slate-100 hover:!bg-slate-200 cursor-pointer"
             @click="onClickDialog(String(item.id))"
@@ -42,18 +47,35 @@
 </template>
 
 <script lang="ts" setup>
+
 const statisticStore = useStatisticStore()
 const router = useRouter()
 const loading = ref(true)
 const statistics = ref<StatisticsPreview[]>([])
+const sortDirection = ref<'asc' | 'desc'>('asc')
 
 onMounted(async () => {
-  await statisticStore.getStatistics()
-  statistics.value = statisticStore.statistics
-  setTimeout(() => {
+  try {
+    await statisticStore.getStatistics()
+    statistics.value = statisticStore.statistics
+  } catch (error) {
+    console.error(error)
+  } finally {
     loading.value = false
-  }, 500)
+  }
 })
+
+const sortedStatistics = computed(() => {
+  return [...statistics.value].sort((a, b) => {
+    const dateA = new Date(a.date_last_message).getTime()
+    const dateB = new Date(b.date_last_message).getTime()
+    return sortDirection.value === 'asc' ? dateA - dateB : dateB - dateA
+  })
+})
+
+const sortByDate = () => {
+  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+}
 
 const onClickDialog = (id: string) => {
   router.push(`/statistic/${id}`)

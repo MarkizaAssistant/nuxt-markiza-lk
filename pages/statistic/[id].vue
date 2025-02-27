@@ -17,27 +17,32 @@
       />
 
       <template v-else>
-        <div
-          v-for="item in chat"
-          :key="item.id"
-          :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
-        >
+        <div v-if="chat.length > 0">
           <div
-            :class="[
-              'p-5 rounded-lg max-w-[70%] min-w-[35%] flex flex-col gap-2 border',
-              item.sender === 'user' ? 'bg-slate-500 text-white' : 'bg-blue-100 text-black'
-            ]">
-            <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-              <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
-            </div>
-            <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-              <p class="text-lg">{{ item.message }}</p>
-            </div>
-            <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-              <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
+            v-for="item in chat"
+            :key="item.id"
+            :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
+          >
+            <div
+              :class="[
+                'p-5 rounded-lg max-w-[70%] min-w-[35%] flex flex-col gap-2 border',
+                item.sender === 'user' ? 'bg-slate-500 text-white' : 'bg-blue-100 text-black'
+              ]">
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
+              </div>
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <p v-if="item.sender === 'user'" class="text-lg">{{ item.message }}</p>
+                <p v-else class="text-lg" v-html="item.message"></p>
+              </div>
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <div v-else>Диалогов нет</div>
       </template>
       
     </div>

@@ -23,8 +23,8 @@
           <div class="flex flex-col gap-2">
             <div class="text-lg font-bold">{{ widget.name }}</div>
             <div class="text-sm">
-              <span :class="widget.isActive ? 'text-green-600' : 'text-red-600'">
-                {{ widget.isActive ? 'Активен' : 'Неактивен' }}
+              <span :class="widget.is_active ? 'text-green-600' : 'text-red-600'">
+                {{ widget.is_active ? 'Активен' : 'Неактивен' }}
               </span>
             </div>
             <div class="mt-4">
@@ -69,17 +69,23 @@ const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 
 onMounted(async () => {
-  await widgetStore.getWidgetsPreview()
-  widgets.value = widgetStore.widgetsPreview
+  try {
+    await widgetStore.getWidgetsPreview()
+    widgets.value = widgetStore.widgetsPreview
+  } catch (error) {
+    console.error('Ошибка при получении виджетов:', error)
+  }
 })
 
 const AddWidget = async () => {
   try {
-    const widgetId = await widgetStore.createWidget()
-    await useRouter().push({
-      path: `/widget/settings/${widgetId}`,
+    const result = await widgetStore.createWidget()
+    if (result) {
+      await useRouter().push({
+      path: `/widget/settings/${result.widgetId}`,
       query: { isNew: 'true' }
     })
+    }
   } catch (error) {
     console.error('Ошибка при создании виджета:', error)
   }
