@@ -12,7 +12,7 @@
     <div class="flex gap-4 items-center text-white">
       <div class="flex flex-col">
         <div class="flex gap-4 items-center">
-          Вы вошли как <strong>dmcokol@yandex.ru</strong>
+          Вы вошли как <strong>{{ user?.email ?? user?.username }}</strong>
           <Button variant="ghost" class="hover:bg-slate-700 hover:text-white">
             Профиль
           </Button>
@@ -41,6 +41,7 @@ defineProps({
 })
 
 const authStore = useAuthStore()
+const user = computed(() => authStore.user)
 
 const onLogout = async () => {
   await authStore.logout()
