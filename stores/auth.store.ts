@@ -17,38 +17,35 @@ export const useAuthStore = defineStore('auth', () => {
     default: () => false
   })
 
-  const userCookie = useCookie<User | null>('user', {
-    default: () => null
-  })
-
-  const user = ref<User | null>(userCookie.value)
   const isAuthenticated = ref(authCookie.value)
-
-  watch(user, (newUser) => {
-    userCookie.value = newUser
-  }, { immediate: true })
 
   watch(isAuthenticated, (newValue) => {
     authCookie.value = newValue
   }, { immediate: true })
 
-  const login = async (username: string, password: string): Promise<{ message: string, user: User }> => {
+  const login = async (username: string, password: string) => {
     try {
       await useCsrf()
       
-      const response = await useApi<{ message: string, user_data: User }>('/auth/login/', {
+      await useApi('/auth/login/', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       })
 
       isAuthenticated.value = true
+    } catch (error: any) {
+      const errorMessage = error?.data?.error || 'Неизвестная ошибка'
+      throw new Error(errorMessage)
+    }
+  }
 
-      user.value = response.user_data
+  const profile = async (): Promise<User | undefined> => {
+    try {
+      const response = await useApi<User>('/api/v1/profile/', {
+        method: 'GET',
+      })
 
-      return {
-        message: response.message,
-        user: response.user_data
-      }
+      return response
     } catch (error: any) {
       const errorMessage = error?.data?.error || 'Неизвестная ошибка'
       throw new Error(errorMessage)
@@ -62,8 +59,6 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       isAuthenticated.value = false
-
-      user.value = null
     } catch (error: any) {
       const errorMessage = error?.data?.error || 'Неизвестная ошибка'
       throw new Error(errorMessage)
@@ -72,8 +67,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     isAuthenticated,
-    user,
     login,
     logout,
+    profile,
   }
 })
