@@ -34,6 +34,8 @@ export const useStatisticStore = defineStore('statistic', () => {
       const chats = await useApi<Chat[]>('/api/v1/chats/', {
         method: 'GET'
       })
+
+      if (!chats) return
   
       const statisticsWithWidgetNames = await Promise.all(
         chats.map(async (chat: any) => {
@@ -47,6 +49,9 @@ export const useStatisticStore = defineStore('statistic', () => {
           const widgetInfo = await useApi<WidgetPreview>(`/api/v1/widget-info/${chat.widget_owner}/`, {
             method: 'GET'
           })
+
+          if (!widgetInfo) return
+
           widgetCache.value[chat.widget_owner] = widgetInfo.name
   
           return {
@@ -65,9 +70,13 @@ export const useStatisticStore = defineStore('statistic', () => {
 
   const getChat = async (chatId: number) => {
     try {
-      chat.value = await useApi(`/api/v1/messages/${chatId}/`, {
+      const chatData = await useApi<PersonalDialog[]>(`/api/v1/messages/${chatId}/`, {
         method: 'GET'
       })
+
+      if (!chatData) return
+
+      chat.value = chatData
     } catch (error) {
       console.error('Ошибка получения чата', error)
       throw new Error('Ошибка получения чата')
