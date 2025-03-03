@@ -20,9 +20,10 @@ export const useApi = async <T>(url: string, options: any = {}) => {
       ...options
     })
   } catch (error: any) {
-    if (error?.response?.status === 401) {
-      authStore.logout()
+    if (error?.response?.status === 401 || error?.response?.status === 403 || error?.response?.message === 'Учетные данные не были предоставлены.') {
+      authStore.isAuthenticated = false
+      useRouter().push('auth/login')
+      return
     }
-    throw error
   }
 }

@@ -1,5 +1,17 @@
 import { defineStore } from 'pinia'
 
+export interface User {
+  id: number,
+  username: string,
+  email: string,
+  first_name: string,
+  last_name: string,
+  date_joined: string,
+  last_login: string,
+  is_staff: boolean,
+  is_superuser: boolean
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const authCookie = useCookie<boolean>('isAuthenticated', {
     default: () => false
@@ -27,6 +39,19 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const profile = async (): Promise<User | undefined> => {
+    try {
+      const response = await useApi<User>('/api/v1/profile/', {
+        method: 'GET',
+      })
+
+      return response
+    } catch (error: any) {
+      const errorMessage = error?.data?.error || 'Неизвестная ошибка'
+      throw new Error(errorMessage)
+    }
+  }
+
   const logout = async () => {
     try {
       await useApi('/auth/logout/', {
@@ -44,5 +69,6 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     login,
     logout,
+    profile,
   }
 })

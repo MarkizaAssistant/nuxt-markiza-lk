@@ -18,7 +18,7 @@
                 <Icon :name="sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'" />
               </button>
             </th>
-            <th class="table-header">Тип чата</th>
+            <th class="table-header">Виджет</th>
             <th class="table-header rounded-e-lg">Избранное</th>
           </tr>
         </thead>
@@ -33,7 +33,7 @@
             <td class="table-body">
               <time :datetime="$dayjs(item.date_last_message).format('DD.MM.YYYY')">{{ $dayjs(item.date_last_message).format('DD.MM.YYYY') }}</time>
             </td>
-            <td class="table-body">{{ item.chat_type }}</td>
+            <td class="table-body">{{ item.widget_name }}</td>
             <td class="table-body rounded-e-lg">{{ item.note }}</td>
           </tr>
         </tbody>
