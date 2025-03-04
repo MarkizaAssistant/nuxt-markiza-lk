@@ -1,16 +1,5 @@
 import { defineStore } from 'pinia'
-
-export interface User {
-  id: number,
-  username: string,
-  email: string,
-  first_name: string,
-  last_name: string,
-  date_joined: string,
-  last_login: string,
-  is_staff: boolean,
-  is_superuser: boolean
-}
+import type { User } from '~/types/user'
 
 export const useAuthStore = defineStore('auth', () => {
   const authCookie = useCookie<boolean>('isAuthenticated', {
