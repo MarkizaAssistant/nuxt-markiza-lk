@@ -35,6 +35,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { User } from '~/types/user'
+
 defineProps({
   isCollapsed: {
     type: Boolean,
@@ -42,15 +44,15 @@ defineProps({
   }
 })
 
-const authStore = useAuthStore()
+const authStore = useAuthStoreBff()
 const user = ref<User>()
 
 onMounted(async () => {
-  user.value = await authStore.profile()
+  // user.value = await authStore.profile()
 })
 
 const onLogout = async () => {
-  await authStore.logout()
+  const response = await authStore.logout()
   useRouter().push('/auth/login')
 }
 </script>

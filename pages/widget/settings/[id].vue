@@ -130,7 +130,7 @@ const widget = ref<WidgetInfo>({
   id: Number(route.params.id),
   name: '',
   domains: [],
-  isActive: false,
+  is_active: false,
   manager_tg_id: []
 })
 const settings = ref<{
@@ -235,12 +235,10 @@ const saveSettings = async () => {
   widget.value.manager_tg_id = settings.value.telegramIds;
 
   try {
-    loaderStore.showLoader();
     await widgetStore.addSettings(widget.value);
   } catch (error) {
     console.log(error);
   } finally {
-    loaderStore.hideLoader();
   }
 }
 

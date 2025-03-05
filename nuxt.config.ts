@@ -14,4 +14,13 @@ export default defineNuxtConfig({
       nodeEnv: process.env.NODE_ENV,
     }
   },
+
+  routeRules: {
+    '/api/**': {
+      cors: true,
+      headers: {
+        'access-control-allow-credentials': 'true',
+      }
+    }
+  }
 })

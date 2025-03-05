@@ -6,20 +6,20 @@
     }"
   >
     <Header
-      v-if="authStore.isAuthenticated"
+      v-if="authStore.checkAuth()"
       :is-collapsed="isCollapsed"
       @toggle="toggleSidebar"
       class="col-span-2"
     />
     
     <Sidebar
-      v-if="authStore.isAuthenticated"
+      v-if="authStore.checkAuth()"
       :is-collapsed="isCollapsed"
     />
 
     <main
       class="col-span-1 row-span-1"
-      :class="{ 'py-12 px-24': authStore.isAuthenticated}"
+      :class="{ 'py-12 px-24': authStore.checkAuth()}"
     >
       <slot />
     </main>
@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-const authStore = useAuthStore()
+const authStore = useAuthStoreBff()
 
 const isCollapsed = ref(false)
 

@@ -1,9 +1,9 @@
 import { H3Event } from 'h3'
 
-export default defineEventHandler(async (event: H3Event) => {
+export default defineEventHandler(async (event: H3Event): Promise<any> => {
   const config = useRuntimeConfig()
 
-  const response = await $fetch<{ csrfToken: string }>('/api/v1/csrf', {
+  const response = await $fetch<any>('/api/v1/csrf', {
     baseURL: config.public.apiBase,
     method: 'GET'
   })
@@ -14,13 +14,14 @@ export default defineEventHandler(async (event: H3Event) => {
       statusMessage: 'CSRF token not received from server'
     })
   }
-
+  
   const csrfToken = response.csrfToken
 
   setCookie(event, 'csrftoken', csrfToken, {
-    sameSite: 'lax',
+    sameSite: config.public.nodeEnv === 'production' ? 'none' : 'lax',
     path: '/',
     secure: config.public.nodeEnv === 'production',
+    httpOnly: true,
     maxAge: 60 * 60 * 24 * 30
   })
 
