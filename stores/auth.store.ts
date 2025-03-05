@@ -18,24 +18,32 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const isAuthenticated = ref(authCookie.value)
+  const errorMessage = ref('')
 
   watch(isAuthenticated, (newValue) => {
     authCookie.value = newValue
   }, { immediate: true })
 
-  const login = async (username: string, password: string) => {
+  const login = async (username: string, password: string): Promise<{ message?: string, error?: string }> => {
     try {
+      errorMessage.value = ''
+  
       await useCsrf()
-      
-      await useApi('/auth/login/', {
+  
+      const response = await useApi<any>('/auth/login/', {
         method: 'POST',
         body: JSON.stringify({ username, password }),
       })
-
-      isAuthenticated.value = true
+  
+      if (response?.message) {
+        isAuthenticated.value = true
+        return { message: response.message }
+      }
+  
+      return { error: 'Неверный логин или пароль' }
     } catch (error: any) {
-      const errorMessage = error?.data?.error || 'Неизвестная ошибка'
-      throw new Error(errorMessage)
+      errorMessage.value = error?.data?.error || 'Неверный логин или пароль'
+      return { error: errorMessage.value }
     }
   }
 
@@ -67,6 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     isAuthenticated,
+    errorMessage,
     login,
     logout,
     profile,
