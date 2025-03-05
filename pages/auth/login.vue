@@ -15,15 +15,15 @@
         <CardContent class="grid gap-4">
           <div class="grid gap-2">
             <Label for="username">Логин</Label>
-            <Input v-model="form.username" id="username" placeholder="Введите логин" />
+            <Input v-model="form.username" id="username" placeholder="Введите логин" required />
           </div>
           <div class="grid gap-2">
             <Label for="password">Пароль</Label>
-            <Input v-model="form.password" id="password" type="password" placeholder="Введите пароль" />
+            <Input v-model="form.password" id="password" type="password" placeholder="Введите пароль" required />
           </div>
         </CardContent>
         <CardFooter class="flex flex-col gap-4">
-          <Button class="w-full">
+          <Button class="w-full" type="submit">
             Войти
           </Button>
 
@@ -61,17 +61,23 @@ const authStore = useAuthStore()
 const router = useRouter()
 const loaderStore = useLoaderStore()
 
-const errorMessage = ref<string | null>(null)
+const errorMessage = ref<string | null>('')
 
 const onSubmit = async () => {
-  errorMessage.value = null
-
   try {
     loaderStore.showLoader()
-    await authStore.login(form.value.username, form.value.password)
-    await router.push('/')
-  } catch(err) {
-    errorMessage.value = err instanceof Error ? err.message : 'Ошибка авторизации'
+    const { message, error } = await authStore.login(form.value.username, form.value.password)
+    
+    if (message) {
+      await router.push('/') 
+    } else if (error) {
+      errorMessage.value = error
+    } else {
+      errorMessage.value = 'Ошибка авторизации'
+    }
+  } catch (err) {
+    console.error(err)
+    errorMessage.value = 'Произошла ошибка при авторизации'
   } finally {
     loaderStore.hideLoader()
   }
