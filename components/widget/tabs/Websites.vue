@@ -81,7 +81,7 @@ const notification = ref({
   message: '',
 });
 
-const domainRegex = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+const domainRegex = /^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.)+(ru|com|net|org|info|biz)$/;
 
 const addDomain = async () => {
   const domain = newDomain.value.trim();
@@ -92,7 +92,7 @@ const addDomain = async () => {
   }
 
   if (!domainRegex.test(domain)) {
-    errorMessageInput.value = "Некорректный домен.";
+    errorMessageInput.value = "Некорректный домен. Убедитесь, что домен содержит корректное расширение (например, .ru, .com).";
     return;
   }
 
