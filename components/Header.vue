@@ -35,8 +35,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { User } from '~/types/user'
-
 defineProps({
   isCollapsed: {
     type: Boolean,
@@ -44,11 +42,11 @@ defineProps({
   }
 })
 
-const authStore = useAuthStoreBff()
-const user = ref<User>()
+const authStore = useAuthStore()
+const user = computed(() => authStore.user)
 
 onMounted(async () => {
-  // user.value = await authStore.profile()
+  authStore.profile()
 })
 
 const onLogout = async () => {

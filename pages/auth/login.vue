@@ -64,8 +64,7 @@ const form = ref<PAYLOAD>({
   password: ''
 })
 
-const authStore = useAuthStoreBff()
-const router = useRouter()
+const authStore = useAuthStore()
 
 const notification = ref({
   show: false,
@@ -81,7 +80,11 @@ const onSubmit = async () => {
   try {
     const response = await authStore.login(form.value.username, form.value.password)
     showNotification('success', 'Успешная авторизация')
-    await router.push('/')
+    if (response) {
+      setTimeout(() => {
+        navigateTo('/')
+      }, 100)
+    }
   } catch(error) {
     showNotification('error', 'Ошибка авторизации')
   }
