@@ -50,10 +50,6 @@ defineProps({
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
 
-onMounted(async () => {
-  authStore.profile()
-})
-
 const onLogout = async () => {
   const response = await authStore.logout()
   useRouter().push('/auth/login')

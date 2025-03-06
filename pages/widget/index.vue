@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold">Виджеты ({{ widgets.length }}) </h2>
+      <h2 class="text-2xl font-bold">Виджеты ({{ widgetStore.widgets.length }}) </h2>
       <Button 
         class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
         @click="AddWidget"
@@ -10,9 +10,11 @@
       </Button>
     </div>
 
-    <div class="overflow-y-auto h-[600px] pr-2 widget-grid">
+    <div v-if="widgetStore.isLoading">Загрузка...</div>
+
+    <div v-else-if="widgetStore.hasWidgets" class="overflow-y-auto h-[600px] pr-2 widget-grid">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="widget in widgets" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
+        <div v-for="widget in widgetStore.widgets" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
           <button 
             @click="openDeleteModal(widget.id)"
             class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
@@ -39,6 +41,8 @@
         </div>
       </div>
     </div>
+
+    <div v-else class="flex justify-center items-center">Список виджетов пуст</div>
   </div>
 
   <Modal
@@ -64,31 +68,25 @@ definePageMeta({
 })
 
 const widgetStore = useWidgetStore()
-const widgets = ref<WidgetPreview[]>([])
 const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 
 onMounted(async () => {
-  try {
-    await widgetStore.getWidgetsPreview()
-    widgets.value = widgetStore.widgetsPreview
-  } catch (error) {
-    console.error('Ошибка при получении виджетов:', error)
-  }
+  await widgetStore.fetchWidgets()
 })
 
 const AddWidget = async () => {
-  try {
-    const result = await widgetStore.createWidget()
-    if (result) {
-      await useRouter().push({
-      path: `/widget/settings/${result.widgetId}`,
-      query: { isNew: 'true' }
-    })
-    }
-  } catch (error) {
-    console.error('Ошибка при создании виджета:', error)
-  }
+  // try {
+  //   const result = await widgetStore.createWidget()
+  //   if (result) {
+  //     await useRouter().push({
+  //     path: `/widget/settings/${result.widgetId}`,
+  //     query: { isNew: 'true' }
+  //   })
+  //   }
+  // } catch (error) {
+  //   console.error('Ошибка при создании виджета:', error)
+  // }
 }
 
 const openDeleteModal = (id: number) => {
@@ -97,15 +95,15 @@ const openDeleteModal = (id: number) => {
 }
 
 const deleteWidget = async () => {
-  if (widgetToDelete.value !== null) {
-    try {
-      await widgetStore.deleteWidget(widgetToDelete.value)
-      widgets.value = widgets.value.filter(widget => widget.id !== widgetToDelete.value)
-    } catch (error) {
-      console.error('Ошибка при удалении виджета:', error)
-    }
-  }
-  showDeleteModal.value = false
+  // if (widgetToDelete.value !== null) {
+  //   try {
+  //     await widgetStore.deleteWidget(widgetToDelete.value)
+  //     widgets.value = widgets.value.filter(widget => widget.id !== widgetToDelete.value)
+  //   } catch (error) {
+  //     console.error('Ошибка при удалении виджета:', error)
+  //   }
+  // }
+  // showDeleteModal.value = false
 }
 </script>
 

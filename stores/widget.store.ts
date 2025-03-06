@@ -22,7 +22,7 @@ const handleError = (action: string, error: any) => {
   throw new Error(`${action} не удалось: ${error.message}`);
 }
 
-export const useWidgetStore = defineStore('widget', () => {
+export const useWidgetStoreBFf = defineStore('widget', () => {
   const widgetsPreview = ref<WidgetPreview[]>([])
   const widgetInfo = ref<WidgetInfo | null>(null);
 
