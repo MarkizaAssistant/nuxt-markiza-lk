@@ -2,8 +2,7 @@ import { defineStore } from 'pinia'
 import type { User } from '~/types/user'
 
 export const useAuthStore = defineStore('auth', () => {
-  const isAuthenticated = useState<boolean>('isAuthenticated', () => false)
-
+  // --- Состояние (State) ---
   const csrfToken = useCookie<string | null>('csrftoken')
   const session = useCookie<string | null>('sessionid')
   const userData = useCookie<string | null>('userData', {
@@ -12,21 +11,22 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoading = ref<boolean>(false)
   const user = ref<User | null>(null)
-
-  const router = useRouter()
+  const errorMessage = ref<string>('')
   const hasRedirected = ref<boolean>(false)
 
-  watch(csrfToken, (newValue) => {
-    if (!newValue && !hasRedirected.value) {
-      hasRedirected.value = true
-      router.push('/auth/login')
-    }
-  }, { immediate: true })
+  const router = useRouter()
 
-  const errorMessage = ref<string>('')
+  // --- Геттеры (Getters) ---
+  const isAuthenticated = computed(() => !!userData.value)
 
+  // --- Инициализация ---
+  const initialize = () => {
+    checkAuth()
+    setupCsrfTokenWatcher()
+  }
+
+  // --- Методы (Actions) ---
   const checkAuth = () => {
-    isAuthenticated.value = !!userData.value
     return isAuthenticated.value
   }
 
@@ -51,16 +51,9 @@ export const useAuthStore = defineStore('auth', () => {
       })
 
       userData.value = 'auth'
-      isAuthenticated.value = true
       return response
     } catch (err: any) {
-      if (err.response._data.data.error) {
-          errorMessage.value = err.response._data.data.error
-      } else {
-          errorMessage.value = 'Неизвестная ошибка'
-      }
-
-      isAuthenticated.value = false
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
       throw err;
     } finally {
       isLoading.value = false
@@ -75,10 +68,8 @@ export const useAuthStore = defineStore('auth', () => {
         credentials: 'include'
       })
 
-      isAuthenticated.value = false
       userData.value = null
       session.value = null
-
       return response
     } catch (err: any) {
       console.log(err.response._data.data.error)
@@ -99,6 +90,21 @@ export const useAuthStore = defineStore('auth', () => {
       console.log(err.response._data.data.error)
     }
   }
+
+  // --- Наблюдатели (Watchers) ---
+  const setupCsrfTokenWatcher = () => {
+    watch(csrfToken, (newValue) => {
+      if (isAuthenticated.value) return
+
+      if (!newValue && !hasRedirected.value) {
+        hasRedirected.value = true
+        router.push('/auth/login')
+      }
+    }, { immediate: true })
+  }
+
+  // --- Инициализация хранилища ---
+  initialize()
 
   return {
     isLoading,
