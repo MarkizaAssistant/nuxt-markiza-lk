@@ -1,13 +1,13 @@
 <template>
   <div class="relative">
     <SkeletonLoader 
-      v-if="loading" 
+      v-if="chatStore.isLoading" 
       type="table" 
       :count="5"
       containerClass="w-full space-y-2"
     />
 
-    <div v-else-if="statistics.length > 0" class="h-[600px] overflow-y-auto table-container pr-2">
+    <div v-else-if="chatStore.hasChats" class="h-[600px] overflow-y-auto table-container pr-2">
       <table  class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
         <thead class="sticky top-0 bg-slate-300">
           <tr class="shadow-sm rounded-lg">
@@ -24,7 +24,7 @@
         </thead>
         <tbody>
           <tr 
-            v-for="item in sortedStatistics" 
+            v-for="item in sortedChats" 
             :key="item.id"
             class="bg-slate-100 hover:!bg-slate-200 cursor-pointer"
             @click="onClickDialog(String(item.id))"
@@ -47,26 +47,16 @@
 </template>
 
 <script lang="ts" setup>
-
-const statisticStore = useStatisticStore()
+const chatStore = useChatStore()
 const router = useRouter()
-const loading = ref(true)
-const statistics = ref<StatisticsPreview[]>([])
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
 onMounted(async () => {
-  try {
-    await statisticStore.getStatistics()
-    statistics.value = statisticStore.statistics
-  } catch (error) {
-    console.error(error)
-  } finally {
-    loading.value = false
-  }
+  await chatStore.fetchChats()
 })
 
-const sortedStatistics = computed(() => {
-  return [...statistics.value].sort((a, b) => {
+const sortedChats = computed(() => {
+  return [...chatStore.chats].sort((a, b) => {
     const dateA = new Date(a.date_last_message).getTime()
     const dateB = new Date(b.date_last_message).getTime()
     return sortDirection.value === 'asc' ? dateA - dateB : dateB - dateA
