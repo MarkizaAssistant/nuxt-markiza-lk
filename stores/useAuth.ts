@@ -80,6 +80,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const profile = async () => {
     try {
+      isLoading.value = true
+
       const response = await $fetch('/api/user/profile', {
         method: 'GET',
         credentials: 'include'
@@ -88,6 +90,8 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = response
     } catch (err: any) {
       console.log(err.response._data.data.error)
+    } finally {
+      isLoading.value = false
     }
   }
 

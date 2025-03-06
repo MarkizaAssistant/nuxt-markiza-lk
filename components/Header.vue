@@ -13,8 +13,13 @@
       <div class="flex flex-col">
         <div class="flex gap-4 items-center">
           Вы вошли как
-          <strong v-if="user?.email !== ''">{{ user?.email }}</strong>
-          <strong v-else>{{ user?.username }}</strong>
+          <div v-if="authStore.isLoading">
+            <strong>Загрузка...</strong>
+          </div>
+          <div v-else>
+            <strong v-if="user?.email !== ''">{{ user?.email }}</strong>
+            <strong v-else>{{ user?.username }}</strong>
+          </div>
           <Button variant="ghost" class="hover:bg-slate-700 hover:text-white">
             Профиль
           </Button>
