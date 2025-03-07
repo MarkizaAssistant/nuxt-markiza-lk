@@ -50,6 +50,7 @@ export const useWidgetStore = defineStore('widget', () => {
       })
 
       widget.value = response
+      return response
     } catch (err: any) {
       errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
       throw err;

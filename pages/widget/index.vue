@@ -1,48 +1,54 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold">Виджеты ({{ widgetsData?.length || 0 }})</h2>
-      <Button 
-        class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
-        @click="AddWidget"
-      >
-        Добавить новый виджет
-      </Button>
-    </div>
-
-    <div v-if="widgetStore.isLoading">Загрузка...</div>
-
-    <div v-else-if="widgetStore.hasWidgets && widgetsData" class="overflow-y-auto h-[600px] pr-2 widget-grid">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
-          <button 
-            @click="openDeleteModal(widget.id)"
-            class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
-          >
-            <Icon name="ic:outline-delete" class="w-6 h-6" />
-          </button>
-          
-          <div class="flex flex-col gap-2">
-            <div class="text-lg font-bold">{{ widget.name }}</div>
-            <div class="text-sm">
-              <span :class="widget.is_active ? 'text-green-600' : 'text-red-600'">
-                {{ widget.is_active ? 'Активен' : 'Неактивен' }}
-              </span>
-            </div>
-            <div class="mt-4">
-              <Button 
-                class="w-full bg-slate-700 text-white hover:bg-slate-600 p-2"
-                @click="useRouter().push(`/widget/settings/${widget.id}`)"
-              >
-                Настроить виджет
-              </Button>
+  <div v-if="widgetsData">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold">Виджеты ({{ widgetsData?.length || 0 }})</h2>
+        <Button 
+          class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
+          @click="AddWidget"
+        >
+          Добавить новый виджет
+        </Button>
+      </div>
+  
+      <div v-if="widgetStore.isLoading">Загрузка...</div>
+  
+      <div v-else-if="widgetStore.hasWidgets && widgetsData" class="overflow-y-auto h-[600px] pr-2 widget-grid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
+            <button 
+              @click="openDeleteModal(widget.id)"
+              class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
+            >
+              <Icon name="ic:outline-delete" class="w-6 h-6" />
+            </button>
+            
+            <div class="flex flex-col gap-2">
+              <div class="text-lg font-bold">{{ widget.name }}</div>
+              <div class="text-sm">
+                <span :class="widget.is_active ? 'text-green-600' : 'text-red-600'">
+                  {{ widget.is_active ? 'Активен' : 'Неактивен' }}
+                </span>
+              </div>
+              <div class="mt-4">
+                <Button 
+                  class="w-full bg-slate-700 text-white hover:bg-slate-600 p-2"
+                  @click="useRouter().push(`/widget/settings/${widget.id}`)"
+                >
+                  Настроить виджет
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+  
+      <div v-else class="flex justify-center items-center">Список виджетов пуст</div>
     </div>
+  </div>
 
-    <div v-else class="flex justify-center items-center">Список виджетов пуст</div>
+  <div v-else>
+    Загрузка...
   </div>
 
   <Modal
@@ -73,7 +79,7 @@ const widgetToDelete = ref<number | null>(null)
 
 const { data: widgetsData } = await useAsyncData('widgets', async () => {
   const widgets = await widgetStore.fetchWidgets()
-  return widgets || []
+  return widgets || null
 }, { server: true })
 
 const AddWidget = async () => {

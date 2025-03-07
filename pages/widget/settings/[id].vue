@@ -1,9 +1,7 @@
 <template>
-  <div v-if="widgetStore.widget">
-
-    {{ widgetStore.widget.name }}
+  <div v-if="widgetData">
     
-    <!-- <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6 flex justify-between items-center">
       <div class="flex items-center gap-2">
         <input
           v-if="isEditing"
@@ -14,7 +12,7 @@
           ref="nameInput"
         />
         <template v-else>
-          <h2 class="text-2xl font-bold">{{ widget.name || `Новый виджет ${widget.id}` }}</h2>
+          <h2 class="text-2xl font-bold">{{ widgetData.name || `Новый виджет ${widgetData.id}` }}</h2>
           <button
             @click="startEditing"
             class="text-gray-500 hover:text-gray-700"
@@ -43,7 +41,7 @@
       >
         Сохранить настройки
       </Button>
-    </div> -->
+    </div>
 
     <div>
       <!-- Tabs Phone -->
@@ -113,6 +111,9 @@
       </div>
     </div>
   </div>
+  <div v-else>
+    Загрузка...
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -127,13 +128,9 @@ definePageMeta({
   middleware: 'auth',
 })
 
-onMounted(async () => {
-  if (!route.params.isNew) {
-    await useAsyncData('widget', async () => {
-      await widgetStore.fetchWidgetId(Number(route.params.id))
-      return { widget: widgetStore.widget }
-    })
-  }
+const { data: widgetData } = await useAsyncData('settings', async () => {
+  const widget = await widgetStore.fetchWidgetId(Number(route.params.id))
+  return widget || null
 })
 
 const isEditing = ref(false)
