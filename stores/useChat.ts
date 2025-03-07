@@ -9,8 +9,8 @@ export const useChatStore = defineStore('chats', () => {
   const errorMessage = ref<string>('')
 
   // --- Геттеры (Getters) ---
-  const hasChats = computed(() => chats.value.length > 0)
-  const hasMessages = computed(() => messages.value.length > 0)
+  const hasChats = computed(() => chats.value && chats.value.length > 0)
+  const hasMessages = computed(() => messages.value && messages.value.length > 0)
 
   // --- Инициализация ---
   const initialize = () => {}

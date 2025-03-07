@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold">Виджеты ({{ widgetStore.widgets.length }}) </h2>
+      <h2 class="text-2xl font-bold">Виджеты ({{ widgetsLength }}) </h2>
       <Button 
         class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
         @click="AddWidget"
@@ -68,11 +68,14 @@ definePageMeta({
 })
 
 const widgetStore = useWidgetStore()
+const widgetsLength = ref<number>(0)
 const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 
-onMounted(async () => {
+await useAsyncData('widgets', async () => {
   await widgetStore.fetchWidgets()
+  widgetsLength.value = widgetStore.widgets ? widgetStore.widgets.length : 0
+  return { widgets: widgetStore.widgets }
 })
 
 const AddWidget = async () => {

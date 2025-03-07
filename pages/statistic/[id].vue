@@ -57,8 +57,9 @@ definePageMeta({
   middleware: 'auth'
 })
 
-onMounted(async () => {
+await useAsyncData('messages', async () => {
   await chatStore.fetchMessages(Number(route.params.id))
+  return { messages: chatStore.messages }
 })
 </script>
 

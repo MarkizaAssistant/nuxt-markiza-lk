@@ -51,8 +51,9 @@ const chatStore = useChatStore()
 const router = useRouter()
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
-onMounted(async () => {
+await useAsyncData('chats', async () => {
   await chatStore.fetchChats()
+  return { chats: chatStore.chats }
 })
 
 const sortedChats = computed(() => {

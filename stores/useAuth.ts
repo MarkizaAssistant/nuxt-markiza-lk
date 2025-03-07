@@ -10,7 +10,6 @@ export const useAuthStore = defineStore('auth', () => {
   })
 
   const isLoading = ref<boolean>(false)
-  const user = ref<User | null>(null)
   const errorMessage = ref<string>('')
   const hasRedirected = ref<boolean>(false)
 
@@ -87,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
         credentials: 'include'
       })
 
-      user.value = response
+      return response
     } catch (err: any) {
       console.log(err.response._data.data.error)
     } finally {
@@ -112,7 +111,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     isLoading,
-    user,
     isAuthenticated,
     checkAuth,
     errorMessage,

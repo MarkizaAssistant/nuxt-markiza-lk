@@ -5,9 +5,10 @@ export const useWidgetStore = defineStore('widget', () => {
   const isLoading = ref(false)
   const errorMessage = ref<string>('')
   const widgets = ref<WidgetPreview[]>([])
+  const widget = ref<WidgetInfo>()
 
   // --- Геттеры (Getters) ---
-  const hasWidgets = computed(() => widgets.value.length > 0)
+  const hasWidgets = computed(() => widgets.value && widgets.value.length > 0)
 
   // --- Инициализация ---
   const initialize = () => {}
@@ -36,6 +37,26 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
+  const fetchWidgetId = async (widgetId: number) => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const response = await $fetch<WidgetInfo>('/api/widgets/getById', {
+        method: 'POST',
+        credentials: 'include',
+        body: { widgetId }
+      })
+
+      widget.value = response
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // --- Наблюдатели (Watchers) ---
 
   // --- Инициализация хранилища ---
@@ -45,8 +66,10 @@ export const useWidgetStore = defineStore('widget', () => {
     isLoading,
     errorMessage,
     widgets,
+    widget,
     hasWidgets,
     fetchWidgets,
+    fetchWidgetId,
     clearError
   }
 })

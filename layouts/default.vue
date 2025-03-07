@@ -34,12 +34,6 @@ const isCollapsed = ref(false)
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
-
-await useAsyncData('user', async () => {
-  if (authStore.isAuthenticated) {
-    await authStore.profile()
-  }
-})
 </script>
 
 <style>

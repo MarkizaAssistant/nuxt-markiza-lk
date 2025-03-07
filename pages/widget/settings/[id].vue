@@ -1,7 +1,9 @@
 <template>
-  <div v-if="widget">
+  <div v-if="widgetStore.widget">
+
+    {{ widgetStore.widget.name }}
     
-    <div class="mb-6 flex justify-between items-center">
+    <!-- <div class="mb-6 flex justify-between items-center">
       <div class="flex items-center gap-2">
         <input
           v-if="isEditing"
@@ -41,7 +43,7 @@
       >
         Сохранить настройки
       </Button>
-    </div>
+    </div> -->
 
     <div>
       <!-- Tabs Phone -->
@@ -86,7 +88,7 @@
 
       <!-- Content -->
       <div class="mb-4 border rounded-lg p-4 shadow-sm">
-        <WidgetTabsWebsites
+        <!-- <WidgetTabsWebsites
           v-if="activeTab === 'websites'"
           :domains="settings.domains"
           :widget-id="widget.id"
@@ -107,7 +109,7 @@
         />
         <WidgetTabsCode
           v-if="activeTab === 'code'"
-        />
+        /> -->
       </div>
     </div>
   </div>
@@ -116,7 +118,6 @@
 <script lang="ts" setup>
 const route = useRoute()
 const widgetStore = useWidgetStore()
-const loaderStore = useLoaderStore()
 
 useSeoMeta({
   title: `Настройки виджета`
@@ -126,60 +127,24 @@ definePageMeta({
   middleware: 'auth',
 })
 
-const widget = ref<WidgetInfo>({
-  id: Number(route.params.id),
-  name: '',
-  domains: [],
-  is_active: false,
-  manager_tg_id: []
-})
-const settings = ref<{
-  domains: Domain[]
-  behavior: {
-    isPopupEnabled: boolean
-    startMessage: string
-  }
-  telegramIds: string[]
-}>({
-  domains: [],
-  behavior: {
-    isPopupEnabled: true,
-    startMessage: 'Привет! Как я могу вам помочь?'
-  },
-  telegramIds: []
-})
-
 onMounted(async () => {
-  if (route.query.isNew !== 'true') {
-    await widgetStore.getWidgetInfo(Number(route.params.id))
-    if (widgetStore.widgetInfo) {
-      widget.value = widgetStore.widgetInfo
-
-      settings.value.domains = widgetStore.widgetInfo.domains
-      settings.value.telegramIds = widgetStore.widgetInfo.manager_tg_id
-    }
-  } else {
-    widget.value.name = `Новый виджет ${widget.value.id}`
+  if (!route.params.isNew) {
+    await useAsyncData('widget', async () => {
+      await widgetStore.fetchWidgetId(Number(route.params.id))
+      return { widget: widgetStore.widget }
+    })
   }
 })
-
-watch(() => widgetStore.widgetInfo, (newWidgetInfo) => {
-  if (newWidgetInfo) {
-    widget.value = newWidgetInfo;
-    settings.value.domains = newWidgetInfo.domains;
-    settings.value.telegramIds = newWidgetInfo.manager_tg_id;
-  }
-}, { deep: true })
 
 const isEditing = ref(false)
-const editedName = ref(widget.value.name || '')
+const editedName = ref('')
 const nameInput = ref<HTMLInputElement | null>(null)
 const tempSpan = ref<HTMLSpanElement | null>(null)
 const inputWidth = ref(100)
 
 const startEditing = () => {
   isEditing.value = true
-  editedName.value = widget.value.name || ''
+  editedName.value = ''
   nextTick(() => {
     nameInput.value?.focus()
     updateInputWidth()
@@ -187,25 +152,10 @@ const startEditing = () => {
 }
 
 const saveName = () => {
-  if (editedName.value.trim()) {
-    widget.value.name = editedName.value.trim()
-  }
-  isEditing.value = false
 }
 
 const updateInputWidth = () => {
-  if (tempSpan.value && nameInput.value) {
-    tempSpan.value.textContent = editedName.value || `Новый виджет ${widget.value.id}`
-
-    const width = tempSpan.value.offsetWidth
-
-    inputWidth.value = Math.min(Math.max(width, 350), 800)
-  }
 }
-
-watch(editedName, () => {
-  updateInputWidth()
-})
 
 const activeTab = ref('websites')
 
@@ -218,28 +168,18 @@ const tabs = [
 ]
 
 const updateDomains = async () => {
-  await widgetStore.getWidgetInfo(widget.value.id)
-  settings.value.domains = widgetStore.widgetInfo?.domains || [];
 }
 
 const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: string }) => {
-  settings.value.behavior = newBehavior
+  
 }
 
 const updateTelegramIds = (newTelegramIds: string[]) => {
-  settings.value.telegramIds = newTelegramIds
+  
 }
 
 const saveSettings = async () => {
-  widget.value.domains = settings.value.domains
-  widget.value.manager_tg_id = settings.value.telegramIds;
-
-  try {
-    await widgetStore.addSettings(widget.value);
-  } catch (error) {
-    console.log(error);
-  } finally {
-  }
+  
 }
 
 </script>

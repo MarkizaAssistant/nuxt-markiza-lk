@@ -13,12 +13,12 @@
       <div class="flex flex-col">
         <div class="flex gap-4 items-center">
           Вы вошли как
-          <div v-if="authStore.isLoading">
-            <strong>Загрузка...</strong>
+          <div v-if="userData">
+            <strong v-if="userData?.email !== ''">{{ userData?.email }}</strong>
+            <strong v-else>{{ userData?.username }}</strong>
           </div>
           <div v-else>
-            <strong v-if="user?.email !== ''">{{ user?.email }}</strong>
-            <strong v-else>{{ user?.username }}</strong>
+            <strong>Загрузка...</strong>
           </div>
           <Button variant="ghost" class="hover:bg-slate-700 hover:text-white">
             Профиль
@@ -44,11 +44,15 @@ defineProps({
   isCollapsed: {
     type: Boolean,
     required: true
-  }
+  },
 })
 
 const authStore = useAuthStore()
-const user = computed(() => authStore.user)
+
+const { data: userData } = await useAsyncData('user', async () => {
+  const userProfile = await authStore.profile()
+  return userProfile || null
+}, { server: true })
 
 const onLogout = async () => {
   const response = await authStore.logout()
