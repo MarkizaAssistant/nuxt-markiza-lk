@@ -19,7 +19,7 @@
       <template v-else>
         <div v-if="chatStore.hasMessages">
           <div
-            v-for="item in chatStore.messages"
+            v-for="item in messagesData"
             :key="item.id"
             :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
           >
@@ -57,10 +57,10 @@ definePageMeta({
   middleware: 'auth'
 })
 
-await useAsyncData('messages', async () => {
-  await chatStore.fetchMessages(Number(route.params.id))
-  return { messages: chatStore.messages }
-})
+const { data: messagesData } = await useAsyncData('messages', async () => {
+  const messages = await chatStore.fetchMessages(Number(route.params.id))
+  return messages || []
+}, { server: true })
 </script>
 
 <style scoped>

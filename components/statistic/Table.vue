@@ -8,36 +8,38 @@
     />
 
     <div v-else-if="chatStore.hasChats" class="h-[600px] overflow-y-auto table-container pr-2">
-      <table  class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
-        <thead class="sticky top-0 bg-slate-300">
-          <tr class="shadow-sm rounded-lg">
-            <th class="table-header rounded-s-lg">Порядковый номер</th>
-            <th class="table-header">
-              <button @click="sortByDate">
-                Дата последнего сообщения
-                <Icon :name="sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'" />
-              </button>
-            </th>
-            <th class="table-header">Виджет</th>
-            <th class="table-header rounded-e-lg">Избранное</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr 
-            v-for="item in sortedChats" 
-            :key="item.id"
-            class="bg-slate-100 hover:!bg-slate-200 cursor-pointer"
-            @click="onClickDialog(String(item.id))"
-          >
-            <td class="table-body rounded-s-lg">{{ item.id }}</td>
-            <td class="table-body">
-              <time :datetime="$dayjs(item.date_last_message).format('DD.MM.YYYY')">{{ $dayjs(item.date_last_message).format('DD.MM.YYYY') }}</time>
-            </td>
-            <td class="table-body">{{ item.widget_name }}</td>
-            <td class="table-body rounded-e-lg">{{ item.note }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-if="chatsData">
+        <table  class="table-fixed w-full text-xl border-separate border-spacing-y-2.5">
+          <thead class="sticky top-0 bg-slate-300">
+            <tr class="shadow-sm rounded-lg">
+              <th class="table-header rounded-s-lg">Порядковый номер</th>
+              <th class="table-header">
+                <button @click="sortByDate">
+                  Дата последнего сообщения
+                  <Icon :name="sortDirection === 'asc' ? 'mdi:arrow-up' : 'mdi:arrow-down'" />
+                </button>
+              </th>
+              <th class="table-header">Виджет</th>
+              <th class="table-header rounded-e-lg">Избранное</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr 
+              v-for="item in sortedChats" 
+              :key="item.id"
+              class="bg-slate-100 hover:!bg-slate-200 cursor-pointer"
+              @click="onClickDialog(String(item.id))"
+            >
+              <td class="table-body rounded-s-lg">{{ item.id }}</td>
+              <td class="table-body">
+                <time :datetime="$dayjs(item.date_last_message).format('DD.MM.YYYY')">{{ $dayjs(item.date_last_message).format('DD.MM.YYYY') }}</time>
+              </td>
+              <td class="table-body">{{ item.widget_name }}</td>
+              <td class="table-body rounded-e-lg">{{ item.note }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div v-else class="flex justify-center">
@@ -47,17 +49,22 @@
 </template>
 
 <script lang="ts" setup>
+import type { ChatPreview } from '~/types/chats';
+
 const chatStore = useChatStore()
 const router = useRouter()
 const sortDirection = ref<'asc' | 'desc'>('asc')
 
+const chatsData = useState<ChatPreview[]>('chatsData', () => [])
+
 await useAsyncData('chats', async () => {
-  await chatStore.fetchChats()
-  return { chats: chatStore.chats }
-})
+  const chats = await chatStore.fetchChats()
+  chatsData.value = chats || []
+  return chatsData.value
+}, { server: true })
 
 const sortedChats = computed(() => {
-  return [...chatStore.chats].sort((a, b) => {
+  return [...chatsData.value || []].sort((a, b) => {
     const dateA = new Date(a.date_last_message).getTime()
     const dateB = new Date(b.date_last_message).getTime()
     return sortDirection.value === 'asc' ? dateA - dateB : dateB - dateA

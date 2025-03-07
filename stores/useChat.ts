@@ -31,6 +31,7 @@ export const useChatStore = defineStore('chats', () => {
       })
 
       chats.value = response
+      return response
     } catch (err: any) {
       errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
       throw err;
@@ -51,6 +52,7 @@ export const useChatStore = defineStore('chats', () => {
       })
 
       messages.value = response
+      return response
     } catch (err: any) {
       errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
       throw err;

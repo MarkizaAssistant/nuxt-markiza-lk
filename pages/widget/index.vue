@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
-      <h2 class="text-2xl font-bold">Виджеты ({{ widgetsLength }}) </h2>
+      <h2 class="text-2xl font-bold">Виджеты ({{ widgetsData?.length || 0 }})</h2>
       <Button 
         class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
         @click="AddWidget"
@@ -12,9 +12,9 @@
 
     <div v-if="widgetStore.isLoading">Загрузка...</div>
 
-    <div v-else-if="widgetStore.hasWidgets" class="overflow-y-auto h-[600px] pr-2 widget-grid">
+    <div v-else-if="widgetStore.hasWidgets && widgetsData" class="overflow-y-auto h-[600px] pr-2 widget-grid">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="widget in widgetStore.widgets" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
+        <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
           <button 
             @click="openDeleteModal(widget.id)"
             class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
@@ -68,15 +68,13 @@ definePageMeta({
 })
 
 const widgetStore = useWidgetStore()
-const widgetsLength = ref<number>(0)
 const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 
-await useAsyncData('widgets', async () => {
-  await widgetStore.fetchWidgets()
-  widgetsLength.value = widgetStore.widgets ? widgetStore.widgets.length : 0
-  return { widgets: widgetStore.widgets }
-})
+const { data: widgetsData } = await useAsyncData('widgets', async () => {
+  const widgets = await widgetStore.fetchWidgets()
+  return widgets || []
+}, { server: true })
 
 const AddWidget = async () => {
   // try {
@@ -98,15 +96,17 @@ const openDeleteModal = (id: number) => {
 }
 
 const deleteWidget = async () => {
-  // if (widgetToDelete.value !== null) {
-  //   try {
-  //     await widgetStore.deleteWidget(widgetToDelete.value)
-  //     widgets.value = widgets.value.filter(widget => widget.id !== widgetToDelete.value)
-  //   } catch (error) {
-  //     console.error('Ошибка при удалении виджета:', error)
-  //   }
-  // }
-  // showDeleteModal.value = false
+  if (widgetToDelete.value !== null) {
+    try {
+      await widgetStore.deleteWidget(widgetToDelete.value)
+      if (widgetsData?.value) {
+        widgetsData.value = widgetsData.value.filter(widget => widget.id !== widgetToDelete.value)
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении виджета:', error)
+    }
+  }
+  showDeleteModal.value = false
 }
 </script>
 
