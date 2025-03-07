@@ -81,7 +81,7 @@ const notification = ref({
   message: '',
 });
 
-const domainRegex = /^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.)+(ru|com|net|org|info|biz)$/;
+const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z]{2,}$/
 
 const addDomain = async () => {
   const domain = newDomain.value.trim();
