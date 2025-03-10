@@ -9,48 +9,41 @@
       </Button>
     </div>
 
-    <div v-if="messagesData">
-      <div class="flex flex-col max-h-[700px] space-y-4 px-14 py-12 border bg-slate-50 shadow-md rounded-lg overflow-y-auto chat-container">
-        <SkeletonLoader 
-          v-if="chatStore.isLoading"
-          type="chat" 
-          :count="4"
-        />
-  
-        <template v-else>
-          <div v-if="chatStore.hasMessages">
+    <div class="flex flex-col max-h-[700px] space-y-4 px-14 py-12 border bg-slate-50 shadow-md rounded-lg overflow-y-auto chat-container">
+      <div v-if="messagesData">
+        <div v-if="chatStore.hasMessages">
+          <div
+            v-for="item in messagesData"
+            :key="item.id"
+            :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
+          >
             <div
-              v-for="item in messagesData"
-              :key="item.id"
-              :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
-            >
-              <div
-                :class="[
-                  'p-5 rounded-lg max-w-[70%] min-w-[35%] flex flex-col gap-2 border',
-                  item.sender === 'user' ? 'bg-slate-500 text-white' : 'bg-blue-100 text-black'
-                ]">
-                <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-                  <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
-                </div>
-                <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-                  <p v-if="item.sender === 'user'" class="text-lg">{{ item.message }}</p>
-                  <p v-else class="text-lg" v-html="item.message"></p>
-                </div>
-                <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-                  <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
-                </div>
+              :class="[
+                'p-5 rounded-lg max-w-[70%] min-w-[35%] flex flex-col gap-2 border',
+                item.sender === 'user' ? 'bg-slate-500 text-white' : 'bg-blue-100 text-black'
+              ]">
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
+              </div>
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <p v-if="item.sender === 'user'" class="text-lg">{{ item.message }}</p>
+                <p v-else class="text-lg" v-html="item.message"></p>
+              </div>
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
               </div>
             </div>
           </div>
-  
-          <div v-else>Диалогов нет</div>
-        </template>
-        
-      </div>
-    </div>
+        </div>
 
-    <div v-else>
-      Загрузка...
+        <div v-else>Диалогов нет</div>
+      </div>
+      <div v-else>
+        <SkeletonLoader
+          type="chat" 
+          :count="4"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -66,7 +59,7 @@ definePageMeta({
 const { data: messagesData } = await useAsyncData('messages', async () => {
   const messages = await chatStore.fetchMessages(Number(route.params.id))
   return messages || null
-}, { server: true })
+})
 </script>
 
 <style scoped>

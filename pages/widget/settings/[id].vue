@@ -12,7 +12,7 @@
           ref="nameInput"
         />
         <template v-else>
-          <h2 class="text-2xl font-bold">{{ widgetData.name || `Новый виджет ${widgetData.id}` }}</h2>
+          <h2 class="text-2xl font-bold">{{ widgetData.name }}</h2>
           <button
             @click="startEditing"
             class="text-gray-500 hover:text-gray-700"
@@ -21,13 +21,22 @@
           </button>
         </template>
 
-        <button
-          v-if="isEditing"
-          @click="saveName"
-          class="text-gray-500 hover:text-gray-700"
-        >
-          <Icon name="ic:outline-check" class="w-6 h-6" />
-        </button>
+        <div class="flex items-center gap-4">
+          <button
+            v-if="isEditing"
+            @click="saveName"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <Icon name="ic:outline-check" class="w-6 h-6" />
+          </button>
+          <button
+            v-if="isEditing"
+            @click="cancelEditing"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <Icon name="ic:outline-close" class="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       <span
@@ -35,12 +44,20 @@
         class="text-2xl font-bold absolute invisible whitespace-nowrap"
       ></span>
 
-      <Button
-        class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
-        @click="saveSettings"
-      >
-        Сохранить настройки
-      </Button>
+      <div class="flex items-center gap-2">
+        <Button 
+          class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
+          @click="useRouter().push('/widget')"
+        >
+          Назад
+        </Button>
+        <Button
+          class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
+          @click="saveSettings"
+        >
+          Сохранить настройки
+        </Button>
+      </div>
     </div>
 
     <div>
@@ -86,28 +103,28 @@
 
       <!-- Content -->
       <div class="mb-4 border rounded-lg p-4 shadow-sm">
-        <!-- <WidgetTabsWebsites
+        <WidgetTabsWebsites
           v-if="activeTab === 'websites'"
-          :domains="settings.domains"
-          :widget-id="widget.id"
-          @update:domains="updateDomains"
+          :widgetId="widgetData.id"
+          :domains="widgetData.domains"
+          @update:domains="refreshDomains"
         />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
         />
-        <WidgetTabsBehavior
+        <!-- <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"
           :behavior="settings.behavior"
           @update:behavior="updateBehavior"
-        />
-        <WidgetTabsIntegrations
+        /> -->
+        <!-- <WidgetTabsIntegrations
           v-if="activeTab === 'integrations'"
           :telegram-ids="settings.telegramIds"
           @update:telegram-ids="updateTelegramIds"
-        />
+        /> -->
         <WidgetTabsCode
           v-if="activeTab === 'code'"
-        /> -->
+        />
       </div>
     </div>
   </div>
@@ -117,6 +134,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { Domain } from '~/types/widgets'
+
 const route = useRoute()
 const widgetStore = useWidgetStore()
 
@@ -141,7 +160,7 @@ const inputWidth = ref(100)
 
 const startEditing = () => {
   isEditing.value = true
-  editedName.value = ''
+  editedName.value = widgetData.value?.name || ''
   nextTick(() => {
     nameInput.value?.focus()
     updateInputWidth()
@@ -149,10 +168,32 @@ const startEditing = () => {
 }
 
 const saveName = () => {
+  if (editedName.value.trim()) {
+    if (widgetData.value) {
+      widgetData.value.name = editedName.value.trim()
+    }
+  }
+  isEditing.value = false
+}
+
+const cancelEditing = () => {
+  isEditing.value = false
+  editedName.value = ''
 }
 
 const updateInputWidth = () => {
+  if (tempSpan.value && nameInput.value) {
+    tempSpan.value.textContent = editedName.value
+
+    const width = tempSpan.value.offsetWidth
+
+    inputWidth.value = Math.min(Math.max(width, 350), 800)
+  }
 }
+
+watch(editedName, () => {
+  updateInputWidth()
+})
 
 const activeTab = ref('websites')
 
@@ -164,7 +205,10 @@ const tabs = [
   { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
 ]
 
-const updateDomains = async () => {
+const refreshDomains = async (newDomains: Domain[]) => {
+  if (widgetData.value) {
+    widgetData.value.domains = newDomains
+  }
 }
 
 const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: string }) => {

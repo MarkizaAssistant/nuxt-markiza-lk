@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import type { WidgetInfo, WidgetPreview } from '~/types/widgets'
 
 export const useWidgetStore = defineStore('widget', () => {
   // --- Состояние (State) ---
@@ -79,6 +80,54 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
+  const addDomain = async (widgetId: number, domain: string) => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const response = await $fetch('/api/widgets/domains/create', {
+        method: 'POST',
+        credentials: 'include',
+        body: { widgetId, domain }
+      })
+
+      if (response === null) return
+
+      if (widget.value) {
+        widget.value.domains.push(response)
+      }
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const deleteDomain = async (widgetId: number) => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const response = await $fetch('/api/widgets/domains/delete', {
+        method: 'POST',
+        credentials: 'include',
+        body: { widgetId }
+      })
+
+      if (response === null) return
+
+      if (widget.value) {
+        widget.value.domains = widget.value.domains.filter(d => d.id !== widgetId);
+      }
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // --- Наблюдатели (Watchers) ---
 
   // --- Инициализация хранилища ---
@@ -93,6 +142,8 @@ export const useWidgetStore = defineStore('widget', () => {
     fetchWidgets,
     fetchWidgetId,
     deleteWidget,
+    addDomain,
+    deleteDomain,
     clearError
   }
 })
