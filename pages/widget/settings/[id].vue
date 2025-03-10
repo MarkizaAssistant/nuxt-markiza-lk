@@ -150,6 +150,15 @@ const { data: widgetData } = await useAsyncData('settings', async () => {
   return widget || null
 })
 
+onMounted(async () => {
+  if (widgetData.value) {
+    if (widgetData.value.name === null) {
+      widgetData.value.name = `Новый виджет ${widgetData.value.id}`
+      await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
+    }
+  }
+})
+
 const isEditing = ref(false)
 const editedName = ref('')
 const nameInput = ref<HTMLInputElement | null>(null)

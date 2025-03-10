@@ -88,17 +88,14 @@ const { data: widgetsData } = await useAsyncData('widgets', async () => {
 })
 
 const AddWidget = async () => {
-  // try {
-  //   const result = await widgetStore.createWidget()
-  //   if (result) {
-  //     await useRouter().push({
-  //     path: `/widget/settings/${result.widgetId}`,
-  //     query: { isNew: 'true' }
-  //   })
-  //   }
-  // } catch (error) {
-  //   console.error('Ошибка при создании виджета:', error)
-  // }
+  try {
+    const response = await widgetStore.createWidget()
+    if (response.widget_id) {
+      await useRouter().push(`/widget/settings/${response.widget_id}`)
+    }
+  } catch (error) {
+    console.error('Ошибка при создании виджета:', error)
+  }
 }
 
 const openDeleteModal = (id: number) => {

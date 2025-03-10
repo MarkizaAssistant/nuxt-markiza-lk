@@ -60,6 +60,24 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
+  const createWidget = async (): Promise<any> => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const response = await $fetch('/api/widgets/create', {
+        credentials: 'include'
+      })
+
+      return response
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   const deleteWidget = async (widgetId: number) => {
     try {
       isLoading.value = true
@@ -167,6 +185,7 @@ export const useWidgetStore = defineStore('widget', () => {
     hasWidgets,
     fetchWidgets,
     fetchWidgetId,
+    createWidget,
     deleteWidget,
     addDomain,
     deleteDomain,
