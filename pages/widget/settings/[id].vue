@@ -112,11 +112,9 @@
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
         />
-        <!-- <WidgetTabsBehavior
+        <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"
-          :behavior="settings.behavior"
-          @update:behavior="updateBehavior"
-        /> -->
+        />
         <WidgetTabsIntegrations
           v-if="activeTab === 'integrations'"
           :telegram-ids="widgetData.manager_tg_id"
@@ -211,10 +209,6 @@ const refreshDomains = async (newDomains: Domain[]) => {
   }
 }
 
-const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: string }) => {
-  
-}
-
 const updateTelegramIds = (newTelegramIds: string[]) => {
   if (widgetData.value) {
     widgetData.value.manager_tg_id = newTelegramIds
@@ -222,7 +216,10 @@ const updateTelegramIds = (newTelegramIds: string[]) => {
 }
 
 const saveSettings = async () => {
-  
+  if (widgetData.value) {
+    await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
+    navigateTo('/widget')
+  }
 }
 
 </script>

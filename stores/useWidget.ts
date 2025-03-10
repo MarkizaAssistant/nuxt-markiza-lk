@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { WidgetInfo, WidgetPreview } from '~/types/widgets'
+import type { WidgetInfo, WidgetPreview, WidgetSettings } from '~/types/widgets'
 
 export const useWidgetStore = defineStore('widget', () => {
   // --- Состояние (State) ---
@@ -128,6 +128,32 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
+  const updateWidget = async (widgetId: number, widgetData: WidgetInfo) => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const widgetSettings: WidgetSettings = {
+        name: widgetData.name,
+        is_active: widgetData.is_active,
+        manager_tg_id: widgetData.manager_tg_id
+      }
+
+      const response = await $fetch('/api/widgets/update', {
+        method: 'POST',
+        credentials: 'include',
+        body: { widgetId, widgetSettings }
+      })
+
+      return response
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // --- Наблюдатели (Watchers) ---
 
   // --- Инициализация хранилища ---
@@ -144,6 +170,7 @@ export const useWidgetStore = defineStore('widget', () => {
     deleteWidget,
     addDomain,
     deleteDomain,
+    updateWidget,
     clearError
   }
 })

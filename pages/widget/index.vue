@@ -15,7 +15,7 @@
   
       <div v-else-if="widgetStore.hasWidgets && widgetsData" class="overflow-y-auto h-[600px] pr-2 widget-grid">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-4 rounded-lg shadow-sm relative">
+          <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-5 rounded-lg shadow-sm relative">
             <button 
               @click="openDeleteModal(widget.id)"
               class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
@@ -23,12 +23,14 @@
               <Icon name="ic:outline-delete" class="w-6 h-6" />
             </button>
             
-            <div class="flex flex-col gap-2">
-              <div class="text-lg font-bold">{{ widget.name }}</div>
-              <div class="text-sm">
-                <span :class="widget.is_active ? 'text-green-600' : 'text-red-600'">
-                  {{ widget.is_active ? 'Активен' : 'Неактивен' }}
-                </span>
+            <div class="flex flex-col justify-between h-full gap-2">
+              <div class="flex flex-col gap-2">
+                <div class="text-lg font-bold widget-name">{{ widget.name }}</div>
+                <div class="text-sm">
+                  <span :class="widget.is_active ? 'text-green-600' : 'text-red-600'">
+                    {{ widget.is_active ? 'Активен' : 'Неактивен' }}
+                  </span>
+                </div>
               </div>
               <div class="mt-4">
                 <Button 
@@ -79,8 +81,11 @@ const widgetToDelete = ref<number | null>(null)
 
 const { data: widgetsData } = await useAsyncData('widgets', async () => {
   const widgets = await widgetStore.fetchWidgets()
-  return widgets || null
-}, { server: true })
+  if (widgets) {
+    return widgets.sort((a, b) => a.id - b.id)
+  }
+  return null
+})
 
 const AddWidget = async () => {
   // try {
@@ -131,5 +136,13 @@ const deleteWidget = async () => {
 
 .widget-grid::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-600;
+}
+
+.widget-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
