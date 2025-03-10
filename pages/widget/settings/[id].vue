@@ -1,5 +1,5 @@
 <template>
-  <div v-if="widget">
+  <div v-if="widgetData">
     
     <div class="mb-6 flex justify-between items-center">
       <div class="flex items-center gap-2">
@@ -12,7 +12,7 @@
           ref="nameInput"
         />
         <template v-else>
-          <h2 class="text-2xl font-bold">{{ widget.name || `Новый виджет ${widget.id}` }}</h2>
+          <h2 class="text-2xl font-bold">{{ widgetData.name }}</h2>
           <button
             @click="startEditing"
             class="text-gray-500 hover:text-gray-700"
@@ -21,13 +21,22 @@
           </button>
         </template>
 
-        <button
-          v-if="isEditing"
-          @click="saveName"
-          class="text-gray-500 hover:text-gray-700"
-        >
-          <Icon name="ic:outline-check" class="w-6 h-6" />
-        </button>
+        <div class="flex items-center gap-4">
+          <button
+            v-if="isEditing"
+            @click="saveName"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <Icon name="ic:outline-check" class="w-6 h-6" />
+          </button>
+          <button
+            v-if="isEditing"
+            @click="cancelEditing"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <Icon name="ic:outline-close" class="w-6 h-6" />
+          </button>
+        </div>
       </div>
 
       <span
@@ -35,12 +44,20 @@
         class="text-2xl font-bold absolute invisible whitespace-nowrap"
       ></span>
 
-      <Button
-        class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
-        @click="saveSettings"
-      >
-        Сохранить настройки
-      </Button>
+      <div class="flex items-center gap-2">
+        <Button 
+          class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
+          @click="useRouter().push('/widget')"
+        >
+          Назад
+        </Button>
+        <Button
+          class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
+          @click="saveSettings"
+        >
+          Сохранить настройки
+        </Button>
+      </div>
     </div>
 
     <div>
@@ -88,21 +105,19 @@
       <div class="mb-4 border rounded-lg p-4 shadow-sm">
         <WidgetTabsWebsites
           v-if="activeTab === 'websites'"
-          :domains="settings.domains"
-          :widget-id="widget.id"
-          @update:domains="updateDomains"
+          :widgetId="widgetData.id"
+          :domains="widgetData.domains"
+          @update:domains="refreshDomains"
         />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
         />
         <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"
-          :behavior="settings.behavior"
-          @update:behavior="updateBehavior"
         />
         <WidgetTabsIntegrations
           v-if="activeTab === 'integrations'"
-          :telegram-ids="settings.telegramIds"
+          :telegram-ids="widgetData.manager_tg_id"
           @update:telegram-ids="updateTelegramIds"
         />
         <WidgetTabsCode
@@ -111,12 +126,16 @@
       </div>
     </div>
   </div>
+  <div v-else>
+    Загрузка...
+  </div>
 </template>
 
 <script lang="ts" setup>
+import type { Domain } from '~/types/widgets'
+
 const route = useRoute()
 const widgetStore = useWidgetStore()
-const loaderStore = useLoaderStore()
 
 useSeoMeta({
   title: `Настройки виджета`
@@ -126,60 +145,29 @@ definePageMeta({
   middleware: 'auth',
 })
 
-const widget = ref<WidgetInfo>({
-  id: Number(route.params.id),
-  name: '',
-  domains: [],
-  isActive: false,
-  manager_tg_id: []
-})
-const settings = ref<{
-  domains: Domain[]
-  behavior: {
-    isPopupEnabled: boolean
-    startMessage: string
-  }
-  telegramIds: string[]
-}>({
-  domains: [],
-  behavior: {
-    isPopupEnabled: true,
-    startMessage: 'Привет! Как я могу вам помочь?'
-  },
-  telegramIds: []
+const { data: widgetData } = await useAsyncData('settings', async () => {
+  const widget = await widgetStore.fetchWidgetId(Number(route.params.id))
+  return widget || null
 })
 
 onMounted(async () => {
-  if (route.query.isNew !== 'true') {
-    await widgetStore.getWidgetInfo(Number(route.params.id))
-    if (widgetStore.widgetInfo) {
-      widget.value = widgetStore.widgetInfo
-
-      settings.value.domains = widgetStore.widgetInfo.domains
-      settings.value.telegramIds = widgetStore.widgetInfo.manager_tg_id
+  if (widgetData.value) {
+    if (widgetData.value.name === null) {
+      widgetData.value.name = `Новый виджет ${widgetData.value.id}`
+      await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
     }
-  } else {
-    widget.value.name = `Новый виджет ${widget.value.id}`
   }
 })
 
-watch(() => widgetStore.widgetInfo, (newWidgetInfo) => {
-  if (newWidgetInfo) {
-    widget.value = newWidgetInfo;
-    settings.value.domains = newWidgetInfo.domains;
-    settings.value.telegramIds = newWidgetInfo.manager_tg_id;
-  }
-}, { deep: true })
-
 const isEditing = ref(false)
-const editedName = ref(widget.value.name || '')
+const editedName = ref('')
 const nameInput = ref<HTMLInputElement | null>(null)
 const tempSpan = ref<HTMLSpanElement | null>(null)
 const inputWidth = ref(100)
 
 const startEditing = () => {
   isEditing.value = true
-  editedName.value = widget.value.name || ''
+  editedName.value = widgetData.value?.name || ''
   nextTick(() => {
     nameInput.value?.focus()
     updateInputWidth()
@@ -188,14 +176,21 @@ const startEditing = () => {
 
 const saveName = () => {
   if (editedName.value.trim()) {
-    widget.value.name = editedName.value.trim()
+    if (widgetData.value) {
+      widgetData.value.name = editedName.value.trim()
+    }
   }
   isEditing.value = false
 }
 
+const cancelEditing = () => {
+  isEditing.value = false
+  editedName.value = ''
+}
+
 const updateInputWidth = () => {
   if (tempSpan.value && nameInput.value) {
-    tempSpan.value.textContent = editedName.value || `Новый виджет ${widget.value.id}`
+    tempSpan.value.textContent = editedName.value
 
     const width = tempSpan.value.offsetWidth
 
@@ -217,30 +212,22 @@ const tabs = [
   { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
 ]
 
-const updateDomains = async () => {
-  await widgetStore.getWidgetInfo(widget.value.id)
-  settings.value.domains = widgetStore.widgetInfo?.domains || [];
-}
-
-const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: string }) => {
-  settings.value.behavior = newBehavior
+const refreshDomains = async (newDomains: Domain[]) => {
+  if (widgetData.value) {
+    widgetData.value.domains = newDomains
+  }
 }
 
 const updateTelegramIds = (newTelegramIds: string[]) => {
-  settings.value.telegramIds = newTelegramIds
+  if (widgetData.value) {
+    widgetData.value.manager_tg_id = newTelegramIds
+  }
 }
 
 const saveSettings = async () => {
-  widget.value.domains = settings.value.domains
-  widget.value.manager_tg_id = settings.value.telegramIds;
-
-  try {
-    loaderStore.showLoader();
-    await widgetStore.addSettings(widget.value);
-  } catch (error) {
-    console.log(error);
-  } finally {
-    loaderStore.hideLoader();
+  if (widgetData.value) {
+    await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
+    navigateTo('/widget')
   }
 }
 

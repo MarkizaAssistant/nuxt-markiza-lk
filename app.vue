@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout>
-    <GlobalLoader />
     <NuxtPage/>
   </NuxtLayout>
+  <GlobalLoader />
 </template>

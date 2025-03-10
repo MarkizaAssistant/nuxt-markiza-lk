@@ -10,16 +10,10 @@
     </div>
 
     <div class="flex flex-col max-h-[700px] space-y-4 px-14 py-12 border bg-slate-50 shadow-md rounded-lg overflow-y-auto chat-container">
-      <SkeletonLoader 
-        v-if="loading"
-        type="chat" 
-        :count="4"
-      />
-
-      <template v-else>
-        <div v-if="chat.length > 0">
+      <div v-if="messagesData">
+        <div v-if="chatStore.hasMessages">
           <div
-            v-for="item in chat"
+            v-for="item in messagesData"
             :key="item.id"
             :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
           >
@@ -43,28 +37,28 @@
         </div>
 
         <div v-else>Диалогов нет</div>
-      </template>
-      
+      </div>
+      <div v-else>
+        <SkeletonLoader
+          type="chat" 
+          :count="4"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 const route = useRoute()
-const statisticStore = useStatisticStore()
-const chat = ref<PersonalDialog[]>([])
-const loading = ref(true)
+const chatStore = useChatStore()
 
 definePageMeta({
   middleware: 'auth'
 })
 
-onMounted(async () => {
-  await statisticStore.getChat(Number(route.params.id))
-  chat.value = statisticStore.chat
-  setTimeout(() => {
-    loading.value = false
-  }, 500)
+const { data: messagesData } = await useAsyncData('messages', async () => {
+  const messages = await chatStore.fetchMessages(Number(route.params.id))
+  return messages || null
 })
 </script>
 

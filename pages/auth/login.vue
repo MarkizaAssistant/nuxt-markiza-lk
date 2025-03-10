@@ -15,28 +15,35 @@
         <CardContent class="grid gap-4">
           <div class="grid gap-2">
             <Label for="username">Логин</Label>
-            <Input v-model="form.username" id="username" placeholder="Введите логин" required />
+            <Input v-model="form.username" id="username" placeholder="Введите логин" :disabled="authStore.isLoading" />
           </div>
           <div class="grid gap-2">
             <Label for="password">Пароль</Label>
-            <Input v-model="form.password" id="password" type="password" placeholder="Введите пароль" required />
+            <Input v-model="form.password" id="password" type="password" placeholder="Введите пароль" :disabled="authStore.isLoading" />
           </div>
         </CardContent>
         <CardFooter class="flex flex-col gap-4">
-          <Button class="w-full" type="submit">
-            Войти
+          <Button class="w-full" :disabled="authStore.isLoading">
+            {{ authStore.isLoading ? 'Загрузка...' : 'Войти' }}
           </Button>
 
           <div
-            v-if="errorMessage"
+            v-if="authStore.errorMessage"
             class="w-full p-4 bg-red-100 border border-red-400 text-red-700 rounded"
           >
-            {{ errorMessage }}
+            {{ authStore.errorMessage }}
           </div>
         </CardFooter>
       </Card>
 
     </form>
+
+    <Notification
+      v-if="notification.show"
+      :type="notification.type"
+      :message="notification.message"
+      @close="notification.show = false"
+    />
 
   </div>
 </template>
@@ -58,28 +65,28 @@ const form = ref<PAYLOAD>({
 })
 
 const authStore = useAuthStore()
-const router = useRouter()
-const loaderStore = useLoaderStore()
 
-const errorMessage = ref<string | null>('')
+const notification = ref({
+  show: false,
+  type: 'success' as 'success' | 'warning' | 'error',
+  message: '',
+})
+
+const showNotification = (type: 'success' | 'warning' | 'error', message: string) => {
+  notification.value = { show: true, type, message };
+}
 
 const onSubmit = async () => {
   try {
-    loaderStore.showLoader()
-    const { message, error } = await authStore.login(form.value.username, form.value.password)
-    
-    if (message) {
-      await router.push('/') 
-    } else if (error) {
-      errorMessage.value = error
-    } else {
-      errorMessage.value = 'Ошибка авторизации'
+    const response = await authStore.login(form.value.username, form.value.password)
+    showNotification('success', 'Успешная авторизация')
+    if (response) {
+      setTimeout(() => {
+        navigateTo('/')
+      }, 100)
     }
-  } catch (err) {
-    console.error(err)
-    errorMessage.value = 'Произошла ошибка при авторизации'
-  } finally {
-    loaderStore.hideLoader()
+  } catch(error) {
+    showNotification('error', 'Ошибка авторизации')
   }
 }
 
