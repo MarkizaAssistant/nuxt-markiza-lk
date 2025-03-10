@@ -34,7 +34,6 @@ const isCollapsed = ref(false)
 const toggleSidebar = () => {
   isCollapsed.value = !isCollapsed.value
 }
-
 </script>
 
 <style>

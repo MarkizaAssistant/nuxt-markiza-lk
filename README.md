@@ -16,6 +16,7 @@
 
    ```env
    NUXT_API_BASE=http://localhost:8000
+   NODE_ENV=development | production // необходимо указать либо development либо production
    ```
 
    Замените `http://localhost:8000` на адрес вашего сервера.
