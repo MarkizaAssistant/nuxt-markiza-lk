@@ -78,6 +78,7 @@ definePageMeta({
 const widgetStore = useWidgetStore()
 const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
+const loaderStore = useLoaderStore()
 
 const { data: widgetsData } = await useAsyncData('widgets', async () => {
   const widgets = await widgetStore.fetchWidgets()
@@ -89,12 +90,13 @@ const { data: widgetsData } = await useAsyncData('widgets', async () => {
 
 const AddWidget = async () => {
   try {
+    loaderStore.isLoading = true
     const response = await widgetStore.createWidget()
-    if (response.widget_id) {
-      await useRouter().push(`/widget/settings/${response.widget_id}`)
-    }
+    await useRouter().push(`/widget/settings/${response.widget_id}`)
   } catch (error) {
     console.error('Ошибка при создании виджета:', error)
+  } finally {
+    loaderStore.isLoading = false
   }
 }
 

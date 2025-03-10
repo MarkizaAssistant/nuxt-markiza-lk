@@ -65,9 +65,16 @@ export const useWidgetStore = defineStore('widget', () => {
       isLoading.value = true
       errorMessage.value = ''
 
+      const startTime = Date.now()
+
       const response = await $fetch('/api/widgets/create', {
         credentials: 'include'
       })
+
+      const elapsedTime = Date.now() - startTime
+      const delay = Math.max(500 - elapsedTime, 0)
+
+      await new Promise((resolve) => setTimeout(resolve, delay))
 
       return response
     } catch (err: any) {
