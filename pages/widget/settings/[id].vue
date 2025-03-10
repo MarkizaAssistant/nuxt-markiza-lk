@@ -117,11 +117,11 @@
           :behavior="settings.behavior"
           @update:behavior="updateBehavior"
         /> -->
-        <!-- <WidgetTabsIntegrations
+        <WidgetTabsIntegrations
           v-if="activeTab === 'integrations'"
-          :telegram-ids="settings.telegramIds"
+          :telegram-ids="widgetData.manager_tg_id"
           @update:telegram-ids="updateTelegramIds"
-        /> -->
+        />
         <WidgetTabsCode
           v-if="activeTab === 'code'"
         />
@@ -216,7 +216,9 @@ const updateBehavior = (newBehavior: { isPopupEnabled: boolean, startMessage: st
 }
 
 const updateTelegramIds = (newTelegramIds: string[]) => {
-  
+  if (widgetData.value) {
+    widgetData.value.manager_tg_id = newTelegramIds
+  }
 }
 
 const saveSettings = async () => {
