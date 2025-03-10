@@ -15,7 +15,7 @@
   
       <div v-else-if="widgetStore.hasWidgets && widgetsData" class="overflow-y-auto h-[600px] pr-2 widget-grid">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-5 rounded-lg shadow-sm relative">
+          <div v-for="widget in widgetsData" :key="widget.id" class="widget-card bg-slate-200 p-6 rounded-lg shadow-sm relative">
             <button 
               @click="openDeleteModal(widget.id)"
               class="absolute top-2 right-2 text-gray-500 hover:text-red-600"
