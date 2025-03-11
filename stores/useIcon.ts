@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
-import type { CustomIcon, WidgetIcon } from '~/types/widgets'
+import type { WidgetIcon } from '~/types/widgets'
 
 export const useIconStore = defineStore('icons', () => {
   // --- Состояние (State) ---
   const isLoading = ref(false)
   const errorMessage = ref<string>('')
   const baseIcons = ref<WidgetIcon[]>([])
-  const customIcons = ref<CustomIcon[]>([])
+  const customIcons = ref<WidgetIcon[]>([])
 
   // --- Геттеры (Getters) ---
   const hasBaseIcons = computed(() => baseIcons.value && baseIcons.value.length > 0)
@@ -45,7 +45,7 @@ export const useIconStore = defineStore('icons', () => {
       isLoading.value = true
       errorMessage.value = ''
 
-      const response = await $fetch<CustomIcon[]>('/api/widgets/icons/custom', {
+      const response = await $fetch<WidgetIcon[]>('/api/widgets/icons/custom', {
         method: 'GET',
         credentials: 'include'
       })
@@ -77,6 +77,26 @@ export const useIconStore = defineStore('icons', () => {
         }
       })
       
+      return response
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateName = async (iconId: number, newName: string) => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const response = await $fetch('/api/widgets/icons/update', {
+        method: 'POST',
+        credentials: 'include',
+        body: { iconId, newName }
+      })
+
       return response
     } catch (err: any) {
       errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
@@ -119,6 +139,7 @@ export const useIconStore = defineStore('icons', () => {
     fetchBaseIcons,
     fetchCustomIcons,
     uploadCustomIcon,
+    updateName,
     deleteIcon,
     isLoading,
     errorMessage,

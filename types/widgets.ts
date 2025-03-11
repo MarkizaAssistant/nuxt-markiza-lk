@@ -27,13 +27,8 @@ export interface WidgetSettings {
   // base_icon: number
 }
 
-export interface Icon {
+export interface WidgetIcon {
   id: number
   url: string
-}
-
-export interface WidgetIcon extends Icon {
   name: string
 }
-
-export interface CustomIcon extends Icon {}

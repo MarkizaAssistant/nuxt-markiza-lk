@@ -9,14 +9,18 @@
             <div
               v-for="icon in baseIcons"
               :key="icon.id"
-              class="p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer"
+              class="flex items-center gap-4 p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer"
               :class="{
                 'border-slate-800 opacity-100': selectedBaseIconId === icon.id,
-                'border-transparent opacity-80 hover:border-slate-800 hover:opacity-100': selectedBaseIconId !== icon.id,
+                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedBaseIconId !== icon.id,
               }"
               @click="selectIcon(icon.id, 'base')"
             >
-              <img :src="icon.url" :alt="icon.name" class="size-14 object-contain" />
+              <div>
+                <img :src="icon.url" :alt="icon.name" class="size-14 object-contain" />
+              </div>
+
+              <div>{{ icon.name }}</div>
             </div>
           </div>
           <div v-else>Список иконок пуст</div>
@@ -34,20 +38,64 @@
             <div
               v-for="icon in userIcons"
               :key="icon.id"
-              class="p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer"
+              class="flex flex-col items-center gap-4 p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer w-48"
               :class="{
                 'border-slate-800 opacity-100': selectedCustomIconId === icon.id,
-                'border-transparent opacity-80 hover:border-slate-800 hover:opacity-100': selectedCustomIconId !== icon.id,
+                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedCustomIconId !== icon.id,
               }"
               @click="selectIcon(icon.id, 'custom')"
             >
-              <img :src="icon.url" :alt="`Иконка ${icon.id}`" class="size-14 object-contain" />
-              <button 
-                class="text-red-500 mt-2 text-xs"
-                @click="confirmRemoveCustomIcon(icon.id)"
-              >
-                Удалить
-              </button>
+            <div class="w-full">
+              <div class="flex justify-end">
+                <button 
+                  class="text-slate-800 flex items-center"
+                  @click.stop="confirmRemoveCustomIcon(icon.id)"
+                >
+                  <Icon name="ic:outline-delete" class="size-6" />
+                </button>
+              </div>
+              <div class="flex justify-center">
+                <img :src="icon.url" :alt="icon.name" class="size-14 object-contain" />
+              </div>
+  
+              <div class="flex items-center justify-between mb-4">
+                <div v-if="!isEditing(icon.id)" class="icon-name">{{ icon.name }}</div>
+                <input
+                  v-else
+                  type="text"
+                  v-model="editedIconName"
+                  @keyup.enter="saveIconName(icon.id)"
+                  @blur="saveIconName(icon.id)"
+                  class="p-1 border rounded w-full"
+                />
+
+                <button 
+                  v-if="!isEditing(icon.id)"
+                  class="text-slate-800 flex items-center"
+                  @click.stop="startEditing(icon.id, icon.name)"
+                >
+                  <Icon name="ic:baseline-edit" class="size-5" />
+                </button>
+              </div>
+    
+              <div class="flex justify-center gap-4">
+                <button 
+                  v-if="isEditing(icon.id)"
+                  class="border rounded-lg bg-green-500 p-2 text-white flex items-center"
+                  @click.stop="saveIconName(icon.id)"
+                >
+                  <Icon name="ic:outline-check" class="size-5" />
+                </button>
+    
+                <button 
+                  v-if="isEditing(icon.id)"
+                  class="border rounded-lg bg-red-500 p-2 text-white flex items-center"
+                  @click.stop="cancelEditing"
+                >
+                  <Icon name="ic:outline-close" class="size-5" />
+                </button>
+              </div>
+              </div>
             </div>
           </div>
           <div v-else>Список иконок пуст</div>
@@ -104,6 +152,38 @@ const { data: userIcons } = await useAsyncData('customIcons', async () => {
 
 const showModal = ref(false)
 const iconIdToRemove = ref<number | null>(null)
+const editingIconId = ref<number | null>(null)
+const editedIconName = ref<string>('')
+
+const isEditing = (iconId: number) => editingIconId.value === iconId
+
+const startEditing = (iconId: number, currentName: string) => {
+  editingIconId.value = iconId;
+  editedIconName.value = currentName;
+}
+
+const cancelEditing = () => {
+  editingIconId.value = null
+  editedIconName.value = ''
+}
+
+const saveIconName = async (iconId: number) => {
+  if (editedIconName.value.trim() === '') {
+    notificationStore.addNotification('error', 'Имя не может быть пустым.');
+    return;
+  }
+
+  try {
+    await iconStore.updateName(iconId, editedIconName.value);
+    notificationStore.addNotification('success', 'Имя иконки успешно изменено!');
+    userIcons.value = await iconStore.fetchCustomIcons();
+  } catch (error) {
+    notificationStore.addNotification('error', 'Ошибка при изменении имени иконки.');
+  } finally {
+    editingIconId.value = null;
+    editedIconName.value = '';
+  }
+}
 
 const selectIcon = (iconId: number, type: 'base' | 'custom') => {
   if (type === 'base') {
@@ -178,3 +258,13 @@ const cancelRemoveIcon = () => {
   iconIdToRemove.value = null
 }
 </script>
+
+<style>
+.icon-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+</style>
