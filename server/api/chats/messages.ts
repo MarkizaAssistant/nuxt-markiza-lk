@@ -8,20 +8,24 @@ export default defineEventHandler(async (event) => {
   const { chatId } = await readBody(event)
 
   try {
-    if (csrftoken && sessionid) {
-      const response = await $fetch<Message>(`/api/v1/messages/${chatId}/`, {
-        baseURL: config.public.apiBase,
-        method: 'GET',
-        headers: {
-          'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
-        },
-        credentials: 'include'
+    if (!csrftoken || !sessionid) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'CSRF token or session ID is missing.',
       })
-
-      return response
-    } else {
-      return null
     }
+
+    const response = await $fetch<Message>(`/api/v1/messages/${chatId}/`, {
+      baseURL: config.public.apiBase,
+      method: 'GET',
+      headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
+      },
+      credentials: 'include'
+    })
+
+    return response
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,

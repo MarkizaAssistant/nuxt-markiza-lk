@@ -8,22 +8,26 @@ export default defineEventHandler(async (event) => {
   const { widgetId } = await readBody(event)
 
   try {
-    if (csrftoken && sessionid) {
-      const response = await $fetch<WidgetInfo>(`/api/v1/widget-info/${widgetId}/`, {
-        method: 'GET',
-        baseURL: config.public.apiBase,
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-          "Cookie": `sessionid=${sessionid}`
-        },
-        credentials: 'include'
+    if (!csrftoken || !sessionid) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'CSRF token or session ID is missing.',
       })
-
-      return response
-    } else {
-      return null
     }
+
+    const response = await $fetch<WidgetInfo>(`/api/v1/widget-info/${widgetId}/`, {
+      method: 'GET',
+      baseURL: config.public.apiBase,
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrftoken,
+        "Cookie": `sessionid=${sessionid}`
+      },
+      credentials: 'include'
+    })
+
+    return response
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,

@@ -6,20 +6,24 @@ export default defineEventHandler(async (event) => {
   const sessionid = getCookie(event, 'sessionid')
 
   try {
-    if (csrftoken && sessionid) {
-      const response = await $fetch<WidgetPreview[]>('/api/v1/widget-info/', {
-        method: 'GET',
-        baseURL: config.public.apiBase,
-        headers: {
-          'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
-        },
-        credentials: 'include'
+    if (!csrftoken || !sessionid) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'CSRF token or session ID is missing.',
       })
-
-      return response
-    } else {
-      return null
     }
+
+    const response = await $fetch<WidgetPreview[]>('/api/v1/widget-info/', {
+      method: 'GET',
+      baseURL: config.public.apiBase,
+      headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
+      },
+      credentials: 'include'
+    })
+
+    return response
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,
