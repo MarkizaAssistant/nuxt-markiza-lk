@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
 
-  const { widgetId } = await readBody(event)
+  const { iconId, newName  } = await readBody(event)
 
   try {
     if (!csrftoken || !sessionid) {
@@ -14,15 +14,17 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const response = await $fetch(`/api/v1/widget-settings/${widgetId}/delete/`, {
+    const response = await $fetch(`api/v1/widget-settings/user-icons/${iconId}/update-name/`, {
+      method: 'PATCH',
       baseURL: config.public.apiBase,
-      method: 'DELETE',
       headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`,
         'X-CSRFToken': csrftoken,
-        'Content-Type': 'application/json',
-        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid};`
       },
-      credentials: 'include'
+      body: {
+        name: newName,
+      },
+      credentials: 'include',
     })
 
     return response
@@ -30,7 +32,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: error.statusCode || 500,
       statusMessage: error.statusMessage || 'Internal Server Error',
-      data: error.data
+      message: error.message,
     })
   }
 })

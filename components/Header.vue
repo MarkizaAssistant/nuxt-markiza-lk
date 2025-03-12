@@ -52,7 +52,7 @@ const authStore = useAuthStore()
 const { data: userData } = await useAsyncData('user', async () => {
   const userProfile = await authStore.profile()
   return userProfile || null
-}, { server: true })
+}, { server: false })
 
 const onLogout = async () => {
   const response = await authStore.logout()

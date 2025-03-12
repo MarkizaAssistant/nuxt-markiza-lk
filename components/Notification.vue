@@ -21,8 +21,6 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-
 const props = defineProps({
   type: {
     type: String as () => 'success' | 'warning' | 'error',

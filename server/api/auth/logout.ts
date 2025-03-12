@@ -4,28 +4,34 @@ export default defineEventHandler(async (event): Promise<any> => {
   const sessionid = getCookie(event, 'sessionid')
 
   try {
-    if (sessionid && csrfToken) {
-      const response = await $fetch<any>('/auth/logout/', {
-        method: 'POST',
-        baseURL: config.public.apiBase,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': csrfToken,
-          'Cookie': `csrftoken=${csrfToken}; sessionid=${sessionid}`
-        },
-        credentials: 'include',
+    if (!csrfToken || !sessionid) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'CSRF token or session ID is missing.',
       })
-  
-      if (response.error) {
-        throw createError({
-          statusCode: 403,
-          statusMessage: response.data.error,
-          data: response
-        })
-      }
-  
-      return response
     }
+
+    const response = await $fetch<any>('/auth/logout/', {
+      method: 'POST',
+      baseURL: config.public.apiBase,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken,
+        'Cookie': `csrftoken=${csrfToken}; sessionid=${sessionid}`
+      },
+      credentials: 'include',
+    })
+
+    if (response.error) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: response.data.error,
+        data: response
+      })
+    }
+
+    return response
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,

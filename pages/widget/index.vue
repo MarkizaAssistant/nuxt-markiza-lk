@@ -1,5 +1,5 @@
 <template>
-  <div v-if="widgetsData">
+  <div v-if="!isRedirecting && widgetsData">
     <div class="flex flex-col gap-4">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-bold">Виджеты ({{ widgetsData?.length || 0 }})</h2>
@@ -66,6 +66,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { WidgetPreview } from '~/types/widgets'
+
 useSeoMeta({
   title: 'Виджет',
   description: 'Страница виджета'
@@ -80,17 +82,21 @@ const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 const loaderStore = useLoaderStore()
 
-const { data: widgetsData } = await useAsyncData('widgets', async () => {
-  const widgets = await widgetStore.fetchWidgets()
-  if (widgets) {
-    return widgets.sort((a, b) => a.id - b.id)
-  }
-  return null
-})
+const { data: widgetsData } = await useAsyncData(
+  'widgets',
+  async () => {
+    const widgets = await widgetStore.fetchWidgets()
+    return widgets ? widgets.sort((a, b) => a.id - b.id) : null
+  },
+  { server: false }
+)
+
+const isRedirecting = ref(false)
 
 const AddWidget = async () => {
   try {
     loaderStore.isLoading = true
+    isRedirecting.value = true
     const response = await widgetStore.createWidget()
     await useRouter().push(`/widget/settings/${response.widget_id}`)
   } catch (error) {

@@ -3,8 +3,6 @@ export default defineEventHandler(async (event) => {
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
 
-  const { widgetId } = await readBody(event)
-
   try {
     if (!csrftoken || !sessionid) {
       throw createError({
@@ -14,15 +12,30 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const response = await $fetch(`/api/v1/widget-settings/${widgetId}/delete/`, {
+    const files = await readMultipartFormData(event)
+
+    if (!files || files.length === 0) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: "Bad Request",
+        message: "No file uploaded.",
+      });
+    }
+
+    const formData = new FormData()
+    for (const file of files) {
+      formData.append('file', new Blob([file.data]), file.filename)
+    }
+
+    const response = await $fetch('api/v1/widget-settings/user-icon/upload/', {
+      method: 'POST',
       baseURL: config.public.apiBase,
-      method: 'DELETE',
       headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`,
         'X-CSRFToken': csrftoken,
-        'Content-Type': 'application/json',
-        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid};`
       },
-      credentials: 'include'
+      body: formData,
+      credentials: 'include',
     })
 
     return response
@@ -30,7 +43,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: error.statusCode || 500,
       statusMessage: error.statusMessage || 'Internal Server Error',
-      data: error.data
+      message: error.message,
     })
   }
 })
