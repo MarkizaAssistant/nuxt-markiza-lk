@@ -111,8 +111,9 @@
         />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
+          :widget-left="widgetData.widget_left"
           @select-icon="handleIconSelect"
-          @update-position="widgetSettings.widget_left = $event"
+          @update-position="widgetData.widget_left = $event"
         />
         <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"
@@ -243,6 +244,7 @@ const saveSettings = async () => {
   widgetSettings.value.name = widgetData.value?.name || ''
   widgetSettings.value.is_active = widgetData.value?.is_active || false
   widgetSettings.value.manager_tg_id = widgetData.value?.manager_tg_id || []
+  widgetSettings.value.widget_left = widgetData.value?.widget_left || false
   await widgetStore.updateWidget(widgetSettings.value.id, widgetSettings.value)
   navigateTo('/widget')
 }

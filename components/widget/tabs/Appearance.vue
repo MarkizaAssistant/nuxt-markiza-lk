@@ -55,7 +55,7 @@
                 </button>
               </div>
               <div class="flex justify-center">
-                <img :src="icon.url" :alt="icon.name" class="size-14 object-contain" />
+                <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-14 object-contain" />
               </div>
   
               <div class="flex items-center justify-between mb-4">
@@ -155,6 +155,13 @@ const selectedCustomIcon = ref<WidgetIcon | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const notificationStore = useNotificationStore()
 
+const props = defineProps({
+  widgetLeft: {
+    type: Boolean,
+    required: true,
+  },
+})
+
 const { data: baseIcons } = await useAsyncData('baseIcons', async () => {
   const baseIcons = await iconStore.fetchBaseIcons()
   return baseIcons
@@ -169,6 +176,12 @@ const showModal = ref(false)
 const iconIdToRemove = ref<number | null>(null)
 const editingIconId = ref<number | null>(null)
 const editedIconName = ref<string>('')
+
+const isLeftPosition = ref(props.widgetLeft)
+
+watch(() => props.widgetLeft, (newValue) => {
+  isLeftPosition.value = newValue
+})
 
 const isEditing = (iconId: number) => editingIconId.value === iconId
 
@@ -278,7 +291,6 @@ const cancelRemoveIcon = () => {
   iconIdToRemove.value = null
 }
 
-const isLeftPosition = ref(false)
 const updatePosition = () => {
   emit('update-position', isLeftPosition.value);
 }
