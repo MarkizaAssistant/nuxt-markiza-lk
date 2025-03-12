@@ -1,5 +1,5 @@
 <template>
-  <div v-if="widgetsData">
+  <div v-if="!isRedirecting && widgetsData">
     <div class="flex flex-col gap-4">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-bold">Виджеты ({{ widgetsData?.length || 0 }})</h2>
@@ -91,9 +91,12 @@ const { data: widgetsData } = await useAsyncData(
   { server: false }
 )
 
+const isRedirecting = ref(false)
+
 const AddWidget = async () => {
   try {
     loaderStore.isLoading = true
+    isRedirecting.value = true
     const response = await widgetStore.createWidget()
     await useRouter().push(`/widget/settings/${response.widget_id}`)
   } catch (error) {

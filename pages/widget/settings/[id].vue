@@ -112,6 +112,7 @@
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
           @select-icon="handleIconSelect"
+          @update-position="widgetSettings.widget_left = $event"
         />
         <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"

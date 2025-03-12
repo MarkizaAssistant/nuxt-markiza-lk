@@ -130,6 +130,19 @@
       @confirm="handleRemoveIcon"
       @cancel="cancelRemoveIcon"
     />
+
+    <!-- Выбор позиции с помощью радиокнопок -->
+    <div class="flex flex-col gap-4 my-4">
+      <span class="text-lg font-medium">Позиция виджета:</span>
+      <div class="flex gap-4">
+        <label>
+          <input type="radio" v-model="isLeftPosition" :value="true" @change="updatePosition" /> Слева
+        </label>
+        <label>
+          <input type="radio" v-model="isLeftPosition" :value="false" @change="updatePosition" /> Справа
+        </label>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -185,7 +198,7 @@ const saveIconName = async (iconId: number) => {
   }
 }
 
-const emit = defineEmits(['select-icon'])
+const emit = defineEmits(['select-icon', 'update-position'])
 
 const selectIcon = (iconId: number, type: 'base' | 'custom') => {
   if (type === 'base') {
@@ -261,6 +274,11 @@ const handleRemoveIcon = async () => {
 const cancelRemoveIcon = () => {
   showModal.value = false
   iconIdToRemove.value = null
+}
+
+const isLeftPosition = ref(false)
+const updatePosition = () => {
+  emit('update-position', isLeftPosition.value);
 }
 </script>
 
