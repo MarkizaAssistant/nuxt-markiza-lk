@@ -66,6 +66,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { WidgetSettings } from '~/types/widgets'
+
 useSeoMeta({
   title: 'Виджет',
   description: 'Страница виджета'
@@ -110,6 +112,18 @@ const AddWidget = async () => {
     loaderStore.isLoading = true
     isRedirecting.value = true
     const response = await widgetStore.createWidget()
+    const widget: WidgetSettings = {
+      name: response.widget_name,
+      is_active: false,
+      welcome_text: '',
+      base_icon: null,
+      icon: null,
+      id: response.widget_id,
+      manager_tg_id: [],
+      start_hints: [],
+      widget_left: false
+    }
+    await widgetStore.updateWidget(response.widget_id, widget)
     await useRouter().push(`/widget/settings/${response.widget_id}`)
   } catch (error) {
     console.error('Ошибка при создании виджета:', error)

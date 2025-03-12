@@ -152,15 +152,6 @@ const { data: widgetData } = await useAsyncData('settings', async () => {
   return widget || null
 }, { server: false })
 
-onMounted(async () => {
-  if (widgetData.value) {
-    if (widgetData.value.name === null) {
-      widgetData.value.name = `Новый виджет ${widgetData.value.id}`
-      await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
-    }
-  }
-})
-
 const widgetSettings = ref<WidgetSettings>({
   id: widgetData.value ? widgetData.value.id : 0,
   name: widgetData.value?.name || '',

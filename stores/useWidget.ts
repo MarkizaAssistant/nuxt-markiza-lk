@@ -153,10 +153,21 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
-  const updateWidget = async (widgetId: number, data: WidgetInfo) => {
+  const updateWidget = async (widgetId: number, widgetData: WidgetSettings) => {
     try {
       isLoading.value = true
       errorMessage.value = ''
+
+      const data = {
+        name: widgetData.name,
+        is_active: widgetData.is_active,
+        manager_tg_id: widgetData.manager_tg_id,
+        welcome_text: widgetData.welcome_text,
+        start_hints: widgetData.start_hints,
+        widget_left: widgetData.widget_left,
+        icon: widgetData.icon,
+        base_icon: widgetData.base_icon
+      }
 
       const response = await $fetch('/api/widgets/update', {
         method: 'POST',
