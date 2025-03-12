@@ -7,24 +7,28 @@ export default defineEventHandler(async (event) => {
   const sessionid = getCookie(event, 'sessionid')
 
   try {
-    if (csrftoken && sessionid) {
-      const chatsInfo = await $fetch<ChatInfo[]>('/api/v1/chats/', {
-        method: 'GET',
-        baseURL: config.public.apiBase,
-        headers: {
-          'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
-        },
-        credentials: 'include'
+    if (!csrftoken || !sessionid) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'CSRF token or session ID is missing.',
       })
-
-      const chatsPreview = await Promise.all(
-        chatsInfo.map((chat) => transformChatsInfoToChatPreview(chat, event))
-      )
-
-      return chatsPreview
-    } else {
-      return null
     }
+
+    const chatsInfo = await $fetch<ChatInfo[]>('/api/v1/chats/', {
+      method: 'GET',
+      baseURL: config.public.apiBase,
+      headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
+      },
+      credentials: 'include'
+    })
+
+    const chatsPreview = await Promise.all(
+      chatsInfo.map((chat) => transformChatsInfoToChatPreview(chat, event))
+    )
+
+    return chatsPreview
   } catch (error: any) {
     throw createError({
       statusCode: error.statusCode || 500,

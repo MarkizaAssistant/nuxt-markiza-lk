@@ -69,7 +69,7 @@ const sortDirection = ref<'asc' | 'desc'>('asc')
 const { data: chatsData, status } = await useAsyncData('chats', async () => {
   const chats = await chatStore.fetchChats()
   return chats || null
-})
+}, { server: false })
 
 const sortedChats = computed(() => {
   if (chatsData.value === null) return

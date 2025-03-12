@@ -1,9 +1,9 @@
+import { WidgetIcon } from "~/types/widgets"
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
-
-  const { widgetId } = await readBody(event)
 
   try {
     if (!csrftoken || !sessionid) {
@@ -14,13 +14,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const response = await $fetch(`/api/v1/widget-settings/${widgetId}/delete/`, {
+    const response = await $fetch<WidgetIcon[]>('/api/v1/widget-settings/user-icons/', {
+      method: 'GET',
       baseURL: config.public.apiBase,
-      method: 'DELETE',
       headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`,
         'X-CSRFToken': csrftoken,
-        'Content-Type': 'application/json',
-        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid};`
       },
       credentials: 'include'
     })

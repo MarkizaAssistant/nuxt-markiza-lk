@@ -153,21 +153,46 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
-  const updateWidget = async (widgetId: number, widgetData: WidgetInfo) => {
+  const updateWidget = async (widgetId: number, data: WidgetInfo) => {
     try {
       isLoading.value = true
       errorMessage.value = ''
 
-      const widgetSettings: WidgetSettings = {
+      const response = await $fetch('/api/widgets/update', {
+        method: 'POST',
+        credentials: 'include',
+        body: { widgetId, data }
+      })
+
+      return response
+    } catch (err: any) {
+      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
+      throw err;
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateWidgetSettings = async (widgetId: number, widgetData: WidgetSettings) => {
+    try {
+      isLoading.value = true
+      errorMessage.value = ''
+
+      const data = {
         name: widgetData.name,
         is_active: widgetData.is_active,
-        manager_tg_id: widgetData.manager_tg_id
+        manager_tg_id: widgetData.manager_tg_id,
+        welcome_text: widgetData.welcome_text,
+        start_hints: widgetData.start_hints,
+        widget_left: widgetData.widget_left,
+        icon: widgetData.icon,
+        base_icon: widgetData.base_icon
       }
 
       const response = await $fetch('/api/widgets/update', {
         method: 'POST',
         credentials: 'include',
-        body: { widgetId, widgetSettings }
+        body: { widgetId, data }
       })
 
       return response
@@ -197,6 +222,7 @@ export const useWidgetStore = defineStore('widget', () => {
     addDomain,
     deleteDomain,
     updateWidget,
+    updateWidgetSettings,
     clearError
   }
 })

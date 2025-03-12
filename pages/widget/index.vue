@@ -1,5 +1,5 @@
 <template>
-  <div v-if="widgetsData">
+  <div v-if="!isRedirecting && widgetsData">
     <div class="flex flex-col gap-4">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-bold">Виджеты ({{ widgetsData?.length || 0 }})</h2>
@@ -35,7 +35,7 @@
               <div class="mt-4">
                 <Button 
                   class="w-full bg-slate-700 text-white hover:bg-slate-600 p-2"
-                  @click="useRouter().push(`/widget/settings/${widget.id}`)"
+                  @click="handleSettings(widget.id)"
                 >
                   Настроить виджет
                 </Button>
@@ -80,17 +80,35 @@ const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 const loaderStore = useLoaderStore()
 
-const { data: widgetsData } = await useAsyncData('widgets', async () => {
-  const widgets = await widgetStore.fetchWidgets()
-  if (widgets) {
-    return widgets.sort((a, b) => a.id - b.id)
+const { data: widgetsData } = await useAsyncData(
+  'widgets',
+  async () => {
+    const widgets = await widgetStore.fetchWidgets()
+    return widgets ? widgets.sort((a, b) => a.id - b.id) : null
+  },
+  { server: false }
+)
+
+const isRedirecting = ref(false)
+
+const handleSettings = async (id: number) => {
+  try {
+    loaderStore.isLoading = true
+    isRedirecting.value = true
+    setTimeout(async () => {
+      await useRouter().push(`/widget/settings/${id}`)
+    }, 500)
+  } catch (error) {
+    console.error('Ошибка при переходе на страницу настроек виджета:', error)
+  } finally {
+    loaderStore.isLoading = false
   }
-  return null
-})
+}
 
 const AddWidget = async () => {
   try {
     loaderStore.isLoading = true
+    isRedirecting.value = true
     const response = await widgetStore.createWidget()
     await useRouter().push(`/widget/settings/${response.widget_id}`)
   } catch (error) {

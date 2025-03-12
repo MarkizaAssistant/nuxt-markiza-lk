@@ -6,19 +6,23 @@ export default defineEventHandler(async (event) => {
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
 
-  if (csrftoken && sessionid) {
-    const response = await $fetch<UserInfo>('/api/v1/profile/', {
-      baseURL: config.public.apiBase,
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
-      }
+  if (!csrftoken || !sessionid) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'CSRF token or session ID is missing.',
     })
-
-    const user = transformUserInfoToUser(response)
-    return user
-  } else {
-    return null
   }
+
+  const response = await $fetch<UserInfo>('/api/v1/profile/', {
+    baseURL: config.public.apiBase,
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
+    }
+  })
+
+  const user = transformUserInfoToUser(response)
+  return user
 })
