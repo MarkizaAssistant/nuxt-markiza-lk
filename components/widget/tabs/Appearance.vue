@@ -55,7 +55,15 @@
                 </button>
               </div>
               <div class="flex justify-center">
-                <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-14 object-contain" />
+                <template v-if="isImage(icon.url)">
+                  <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-14 object-contain" />
+                </template>
+                <template v-else-if="isVideo(icon.url)">
+                  <video :src="`https://api.yamarkiza.ru/${icon.url}`" controls class="size-14 object-contain" />
+                </template>
+                <template v-else>
+                  <span>Неподдерживаемый формат файла</span>
+                </template>
               </div>
   
               <div class="flex items-center justify-between mb-4">
@@ -172,6 +180,16 @@ const { data: userIcons } = await useAsyncData('customIcons', async () => {
   return userIcons
 }, { server: false })
 
+const isImage = (url: string) => {
+  const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif']
+  return imageExtensions.some(ext => url.toLowerCase().endsWith(ext))
+}
+
+const isVideo = (url: string) => {
+  const videoExtensions = ['.mp4', '.webm']
+  return videoExtensions.some(ext => url.toLowerCase().endsWith(ext))
+}
+
 const showModal = ref(false)
 const iconIdToRemove = ref<number | null>(null)
 const editingIconId = ref<number | null>(null)
@@ -249,7 +267,7 @@ const handleFileUpload = async (event: Event) => {
     return
   }
 
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'video/mp4', 'video/webm']
+  const allowedTypes = ['image/jpeg', 'image/png', 'video/mp4', 'video/webm']
   if (!allowedTypes.includes(file.type)) {
     notificationStore.addNotification('error', 'Недопустимый тип файла.')
     return
