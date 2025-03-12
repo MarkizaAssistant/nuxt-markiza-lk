@@ -111,6 +111,7 @@
         />
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
+          @select-icon="handleIconSelect"
         />
         <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"
@@ -132,7 +133,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Domain } from '~/types/widgets'
+import type { Domain, WidgetSettings } from '~/types/widgets'
 
 const route = useRoute()
 const widgetStore = useWidgetStore()
@@ -157,6 +158,18 @@ onMounted(async () => {
       await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
     }
   }
+})
+
+const widgetSettings = ref<WidgetSettings>({
+  id: widgetData.value ? widgetData.value.id : 0,
+  name: widgetData.value?.name || '',
+  is_active: false,
+  manager_tg_id: [],
+  icon: null,
+  base_icon: null,
+  start_hints: [],
+  welcome_text: '',
+  widget_left: false
 })
 
 const isEditing = ref(false)
@@ -224,11 +237,22 @@ const updateTelegramIds = (newTelegramIds: string[]) => {
   }
 }
 
-const saveSettings = async () => {
-  if (widgetData.value) {
-    await widgetStore.updateWidget(widgetData.value.id, widgetData.value)
-    navigateTo('/widget')
+const handleIconSelect = (payload: { type: 'base' | 'custom'; iconId: number }) => {
+  if (payload.type === 'base') {
+    widgetSettings.value.base_icon = payload.iconId
+    widgetSettings.value.icon = null
+  } else if (payload.type === 'custom') {
+    widgetSettings.value.icon = payload.iconId
+    widgetSettings.value.base_icon = null
   }
+}
+
+const saveSettings = async () => {
+  widgetSettings.value.name = widgetData.value?.name || ''
+  widgetSettings.value.is_active = widgetData.value?.is_active || false
+  widgetSettings.value.manager_tg_id = widgetData.value?.manager_tg_id || []
+  await widgetStore.updateWidgetSettings(widgetSettings.value.id, widgetSettings.value)
+  navigateTo('/widget')
 }
 
 </script>

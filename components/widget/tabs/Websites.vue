@@ -59,6 +59,7 @@ const props = defineProps({
   domains: {
     type: Array<Domain>,
     required: true,
+    default: () => [],
   },
 })
 

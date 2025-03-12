@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
 
-  const { widgetId, widgetSettings } = await readBody(event)
+  const { widgetId, data: widgetSettings } = await readBody(event)
 
   try {
     if (!csrftoken || !sessionid) {
@@ -13,6 +13,8 @@ export default defineEventHandler(async (event) => {
         message: 'CSRF token or session ID is missing.',
       })
     }
+
+    console.log('server', widgetSettings)
 
     const response = await $fetch(`/api/v1/widget-settings/${widgetId}/update/`, {
       method: 'PATCH',

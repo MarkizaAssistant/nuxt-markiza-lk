@@ -185,16 +185,21 @@ const saveIconName = async (iconId: number) => {
   }
 }
 
+const emit = defineEmits(['select-icon'])
+
 const selectIcon = (iconId: number, type: 'base' | 'custom') => {
   if (type === 'base') {
     selectedBaseIconId.value = iconId
     selectedCustomIconId.value = null
+    
   }
 
   if (type === 'custom') {
     selectedCustomIconId.value = iconId
     selectedBaseIconId.value = null
   }
+
+  emit('select-icon', { type, iconId })
 }
 
 const triggerFileInput = () => {
