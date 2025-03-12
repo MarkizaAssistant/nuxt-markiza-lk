@@ -56,10 +56,12 @@
               </div>
               <div class="flex justify-center">
                 <template v-if="isImage(icon.url)">
-                  <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-14 object-contain" />
+                  <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-16 object-contain" />
                 </template>
                 <template v-else-if="isVideo(icon.url)">
-                  <video :src="`https://api.yamarkiza.ru/${icon.url}`" controls class="size-14 object-contain" />
+                  <video autoplay loop muted playsinline class="size-16 object-contain">
+                    <source :src="`https://api.yamarkiza.ru/${icon.url}`" />
+                  </video>
                 </template>
                 <template v-else>
                   <span>Неподдерживаемый формат файла</span>
