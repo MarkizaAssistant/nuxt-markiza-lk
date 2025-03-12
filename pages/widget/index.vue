@@ -66,8 +66,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { WidgetSettings } from '~/types/widgets'
-
 useSeoMeta({
   title: 'Виджет',
   description: 'Страница виджета'
@@ -112,7 +110,7 @@ const AddWidget = async () => {
     loaderStore.isLoading = true
     isRedirecting.value = true
     const response = await widgetStore.createWidget()
-    const widget: WidgetSettings = {
+    const widget = {
       name: response.widget_name,
       is_active: false,
       welcome_text: '',

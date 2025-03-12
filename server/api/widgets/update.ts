@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
 
-  const { widgetId, data: widgetSettings } = await readBody(event)
+  const { widgetId, widgetData } = await readBody(event)
 
   try {
     if (!csrftoken || !sessionid) {
@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`/api/v1/widget-settings/${widgetId}/update/`, {
       method: 'PATCH',
       baseURL: config.public.apiBase,
-      body: widgetSettings,
+      body: widgetData,
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken,

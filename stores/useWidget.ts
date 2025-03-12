@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { WidgetInfo, WidgetPreview, WidgetSettings } from '~/types/widgets'
+import type { WidgetInfo, WidgetPreview } from '~/types/widgets'
 
 export const useWidgetStore = defineStore('widget', () => {
   // --- Состояние (State) ---
@@ -153,57 +153,17 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
-  const updateWidget = async (widgetId: number, widgetData: WidgetSettings) => {
+  const updateWidget = async (widgetId: number, widgetData: any) => {
     try {
       isLoading.value = true
       errorMessage.value = ''
 
-      const data = {
-        name: widgetData.name,
-        is_active: widgetData.is_active,
-        manager_tg_id: widgetData.manager_tg_id,
-        welcome_text: widgetData.welcome_text,
-        start_hints: widgetData.start_hints,
-        widget_left: widgetData.widget_left,
-        icon: widgetData.icon,
-        base_icon: widgetData.base_icon
-      }
+      const { id, ...data } = widgetData
 
       const response = await $fetch('/api/widgets/update', {
         method: 'POST',
         credentials: 'include',
-        body: { widgetId, data }
-      })
-
-      return response
-    } catch (err: any) {
-      errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
-      throw err;
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  const updateWidgetSettings = async (widgetId: number, widgetData: WidgetSettings) => {
-    try {
-      isLoading.value = true
-      errorMessage.value = ''
-
-      const data = {
-        name: widgetData.name,
-        is_active: widgetData.is_active,
-        manager_tg_id: widgetData.manager_tg_id,
-        welcome_text: widgetData.welcome_text,
-        start_hints: widgetData.start_hints,
-        widget_left: widgetData.widget_left,
-        icon: widgetData.icon,
-        base_icon: widgetData.base_icon
-      }
-
-      const response = await $fetch('/api/widgets/update', {
-        method: 'POST',
-        credentials: 'include',
-        body: { widgetId, data }
+        body: { widgetId, widgetData: data }
       })
 
       return response
@@ -233,7 +193,6 @@ export const useWidgetStore = defineStore('widget', () => {
     addDomain,
     deleteDomain,
     updateWidget,
-    updateWidgetSettings,
     clearError
   }
 })

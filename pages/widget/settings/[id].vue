@@ -134,7 +134,7 @@
 </template>
 
 <script lang="ts" setup>
-import type { Domain, WidgetSettings } from '~/types/widgets'
+import type { Domain, WidgetIcon, WidgetSettings } from '~/types/widgets'
 
 const route = useRoute()
 const widgetStore = useWidgetStore()
@@ -229,12 +229,12 @@ const updateTelegramIds = (newTelegramIds: string[]) => {
   }
 }
 
-const handleIconSelect = (payload: { type: 'base' | 'custom'; iconId: number }) => {
-  if (payload.type === 'base') {
-    widgetSettings.value.base_icon = payload.iconId
+const handleIconSelect = (payload: { type: 'base_icon' | 'icon'; icon: WidgetIcon }) => {
+  if (payload.type === 'base_icon') {
+    widgetSettings.value.base_icon = payload.icon.id
     widgetSettings.value.icon = null
-  } else if (payload.type === 'custom') {
-    widgetSettings.value.icon = payload.iconId
+  } else if (payload.type === 'icon') {
+    widgetSettings.value.icon = payload.icon.id
     widgetSettings.value.base_icon = null
   }
 }
@@ -243,7 +243,7 @@ const saveSettings = async () => {
   widgetSettings.value.name = widgetData.value?.name || ''
   widgetSettings.value.is_active = widgetData.value?.is_active || false
   widgetSettings.value.manager_tg_id = widgetData.value?.manager_tg_id || []
-  await widgetStore.updateWidgetSettings(widgetSettings.value.id, widgetSettings.value)
+  await widgetStore.updateWidget(widgetSettings.value.id, widgetSettings.value)
   navigateTo('/widget')
 }
 

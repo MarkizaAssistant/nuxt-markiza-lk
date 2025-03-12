@@ -11,10 +11,10 @@
               :key="icon.id"
               class="flex items-center gap-4 p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer"
               :class="{
-                'border-slate-800 opacity-100': selectedBaseIconId === icon.id,
-                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedBaseIconId !== icon.id,
+                'border-slate-800 opacity-100': selectedBaseIcon?.id === icon.id,
+                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedBaseIcon?.id !== icon.id,
               }"
-              @click="selectIcon(icon.id, 'base')"
+              @click="selectIcon(icon, 'base_icon')"
             >
               <div>
                 <img :src="icon.url" :alt="icon.name" class="size-14 object-contain" />
@@ -40,10 +40,10 @@
               :key="icon.id"
               class="flex flex-col items-center gap-4 p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer w-48"
               :class="{
-                'border-slate-800 opacity-100': selectedCustomIconId === icon.id,
-                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedCustomIconId !== icon.id,
+                'border-slate-800 opacity-100': selectedCustomIcon?.id === icon.id,
+                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedCustomIcon?.id !== icon.id,
               }"
-              @click="selectIcon(icon.id, 'custom')"
+              @click="selectIcon(icon, 'icon')"
             >
             <div class="w-full">
               <div class="flex justify-end">
@@ -147,9 +147,11 @@
 </template>
 
 <script lang="ts" setup>
+import type { WidgetIcon } from '~/types/widgets'
+
 const iconStore = useIconStore()
-const selectedBaseIconId = ref<number | null>(null)
-const selectedCustomIconId = ref<number | null>(null)
+const selectedBaseIcon = ref<WidgetIcon | null>(null)
+const selectedCustomIcon = ref<WidgetIcon | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const notificationStore = useNotificationStore()
 
@@ -200,19 +202,19 @@ const saveIconName = async (iconId: number) => {
 
 const emit = defineEmits(['select-icon', 'update-position'])
 
-const selectIcon = (iconId: number, type: 'base' | 'custom') => {
-  if (type === 'base') {
-    selectedBaseIconId.value = iconId
-    selectedCustomIconId.value = null
+const selectIcon = (icon: WidgetIcon, type: 'base_icon' | 'icon') => {
+  if (type === 'base_icon') {
+    selectedBaseIcon.value = icon
+    selectedCustomIcon.value = null
     
   }
 
-  if (type === 'custom') {
-    selectedCustomIconId.value = iconId
-    selectedBaseIconId.value = null
+  if (type === 'icon') {
+    selectedCustomIcon.value = icon
+    selectedBaseIcon.value = null
   }
 
-  emit('select-icon', { type, iconId })
+  emit('select-icon', { type, icon })
 }
 
 const triggerFileInput = () => {
