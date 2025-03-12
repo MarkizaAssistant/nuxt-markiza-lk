@@ -66,6 +66,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { WidgetPreview } from '~/types/widgets'
+
 useSeoMeta({
   title: 'Виджет',
   description: 'Страница виджета'
@@ -80,13 +82,14 @@ const showDeleteModal = ref(false)
 const widgetToDelete = ref<number | null>(null)
 const loaderStore = useLoaderStore()
 
-const { data: widgetsData } = await useAsyncData('widgets', async () => {
-  const widgets = await widgetStore.fetchWidgets()
-  if (widgets) {
-    return widgets.sort((a, b) => a.id - b.id)
-  }
-  return null
-})
+const { data: widgetsData } = await useAsyncData(
+  'widgets',
+  async () => {
+    const widgets = await widgetStore.fetchWidgets()
+    return widgets ? widgets.sort((a, b) => a.id - b.id) : null
+  },
+  { server: false }
+)
 
 const AddWidget = async () => {
   try {

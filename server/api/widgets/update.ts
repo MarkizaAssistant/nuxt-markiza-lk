@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    console.log('server', widgetSettings)
-
     const response = await $fetch(`/api/v1/widget-settings/${widgetId}/update/`, {
       method: 'PATCH',
       baseURL: config.public.apiBase,

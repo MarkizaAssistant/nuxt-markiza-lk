@@ -143,12 +143,12 @@ const notificationStore = useNotificationStore()
 const { data: baseIcons } = await useAsyncData('baseIcons', async () => {
   const baseIcons = await iconStore.fetchBaseIcons()
   return baseIcons
-})
+}, { server: false })
 
 const { data: userIcons } = await useAsyncData('customIcons', async () => {
   const userIcons = await iconStore.fetchCustomIcons()
   return userIcons
-})
+}, { server: false })
 
 const showModal = ref(false)
 const iconIdToRemove = ref<number | null>(null)

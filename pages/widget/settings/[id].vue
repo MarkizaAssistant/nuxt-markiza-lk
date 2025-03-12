@@ -149,7 +149,7 @@ definePageMeta({
 const { data: widgetData } = await useAsyncData('settings', async () => {
   const widget = await widgetStore.fetchWidgetId(Number(route.params.id))
   return widget || null
-})
+}, { server: false })
 
 onMounted(async () => {
   if (widgetData.value) {

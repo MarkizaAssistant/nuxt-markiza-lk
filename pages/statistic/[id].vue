@@ -59,7 +59,7 @@ definePageMeta({
 const { data: messagesData } = await useAsyncData('messages', async () => {
   const messages = await chatStore.fetchMessages(Number(route.params.id))
   return messages || null
-})
+}, { server: false })
 </script>
 
 <style scoped>
