@@ -35,7 +35,7 @@
               <div class="mt-4">
                 <Button 
                   class="w-full bg-slate-700 text-white hover:bg-slate-600 p-2"
-                  @click="useRouter().push(`/widget/settings/${widget.id}`)"
+                  @click="handleSettings(widget.id)"
                 >
                   Настроить виджет
                 </Button>
@@ -66,8 +66,6 @@
 </template>
 
 <script lang="ts" setup>
-import type { WidgetPreview } from '~/types/widgets'
-
 useSeoMeta({
   title: 'Виджет',
   description: 'Страница виджета'
@@ -92,6 +90,20 @@ const { data: widgetsData } = await useAsyncData(
 )
 
 const isRedirecting = ref(false)
+
+const handleSettings = async (id: number) => {
+  try {
+    loaderStore.isLoading = true
+    isRedirecting.value = true
+    setTimeout(async () => {
+      await useRouter().push(`/widget/settings/${id}`)
+    }, 500)
+  } catch (error) {
+    console.error('Ошибка при переходе на страницу настроек виджета:', error)
+  } finally {
+    loaderStore.isLoading = false
+  }
+}
 
 const AddWidget = async () => {
   try {
