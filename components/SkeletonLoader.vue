@@ -1,3 +1,11 @@
+<script setup lang="ts">
+defineProps<{
+  type: 'table' | 'chat'
+  count?: number
+  containerClass?: string
+}>()
+</script>
+
 <template>
   <div :class="containerClass">
     <template v-if="type === 'table'">
@@ -33,11 +41,3 @@
     </template>
   </div>
 </template>
-
-<script setup lang="ts">
-defineProps<{
-  type: 'table' | 'chat'
-  count?: number
-  containerClass?: string
-}>()
-</script>

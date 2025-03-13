@@ -1,3 +1,27 @@
+<script lang="ts" setup>
+const props = defineProps<{
+  telegramIds: string[]
+}>()
+
+const emit = defineEmits<{
+  (event: 'update:telegramIds', value: string[]): void
+}>()
+
+const newTelegramId = ref('')
+
+function addTelegramId () {
+  if (newTelegramId.value.trim()) {
+    emit('update:telegramIds', [...props.telegramIds, newTelegramId.value.trim()])
+    newTelegramId.value = ''
+  }
+}
+
+function removeTelegramId (index: number) {
+  const updateTelegramIds = props.telegramIds.filter((_, i) => i !== index)
+  emit('update:telegramIds', updateTelegramIds)
+}
+</script>
+
 <template>
   <div>
     <div class="flex gap-2 mb-4">
@@ -29,30 +53,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-const props = defineProps<{
-  telegramIds: string[]
-}>()
-
-const emit = defineEmits<{
-  (event: 'update:telegramIds', value: string[]): void
-}>()
-
-const newTelegramId = ref('')
-
-const addTelegramId = () => {
-  if (newTelegramId.value.trim()) {
-    emit('update:telegramIds', [...props.telegramIds, newTelegramId.value.trim()])
-    newTelegramId.value = ''
-  }
-}
-
-const removeTelegramId = (index: number) => {
-  const updateTelegramIds = props.telegramIds.filter((_, i) => i !== index)
-  emit('update:telegramIds', updateTelegramIds)
-}
-</script>
 
 <style>
 

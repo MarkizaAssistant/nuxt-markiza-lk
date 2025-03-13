@@ -1,9 +1,3 @@
-<template>
-  <div>
-    Главная страница
-  </div>
-</template>
-
 <script lang="ts" setup>
 useSeoMeta({
   title: 'Главная страница',
@@ -14,6 +8,12 @@ definePageMeta({
   middleware: 'auth'
 })
 </script>
+
+<template>
+  <div>
+    Главная страница
+  </div>
+</template>
 
 <style>
 

@@ -1,3 +1,13 @@
+<script lang="ts" setup>
+const authStore = useAuthStore()
+
+const isCollapsed = ref(false)
+
+const toggleSidebar = () => {
+  isCollapsed.value = !isCollapsed.value
+}
+</script>
+
 <template>
   <div
     class="w-full h-svh overflow-hidden"
@@ -25,16 +35,6 @@
     </main>
   </div>
 </template>
-
-<script lang="ts" setup>
-const authStore = useAuthStore()
-
-const isCollapsed = ref(false)
-
-const toggleSidebar = () => {
-  isCollapsed.value = !isCollapsed.value
-}
-</script>
 
 <style>
 

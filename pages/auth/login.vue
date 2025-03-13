@@ -1,3 +1,45 @@
+<script lang="ts" setup>
+useSeoMeta({
+  title: 'Авторизация',
+  description: 'Страница авторизации'
+})
+
+type PAYLOAD = {
+  password: string,
+  username: string
+}
+
+const form = ref<PAYLOAD>({
+  username: '',
+  password: ''
+})
+
+const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
+const loaderStore = useLoaderStore()
+
+const isRedirecting = ref(false)
+
+const onSubmit = async () => {
+  try {
+    loaderStore.isLoading = true
+    isRedirecting.value = true
+    const response = await authStore.login(form.value.username, form.value.password)
+
+    if (response) {
+      notificationStore.addNotification('success', 'Успешная авторизация')
+      useRouter().push('/')
+    } else {
+      notificationStore.addNotification('error', 'Ошибка авторизации')
+    }
+  } catch (error) {
+    notificationStore.addNotification('error', 'Ошибка авторизации')
+  } finally {
+    loaderStore.isLoading = false
+  }
+}
+</script>
+
 <template>
   <div v-if="!isRedirecting">
     <div class="flex flex-col justify-center items-center min-h-svh">
@@ -47,45 +89,3 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-useSeoMeta({
-  title: 'Авторизация',
-  description: 'Страница авторизации'
-})
-
-type PAYLOAD = {
-  password: string,
-  username: string
-}
-
-const form = ref<PAYLOAD>({
-  username: '',
-  password: ''
-})
-
-const authStore = useAuthStore()
-const notificationStore = useNotificationStore()
-const loaderStore = useLoaderStore()
-
-const isRedirecting = ref(false)
-
-const onSubmit = async () => {
-  try {
-    loaderStore.isLoading = true
-    isRedirecting.value = true
-    const response = await authStore.login(form.value.username, form.value.password)
-
-    if (response) {
-      notificationStore.addNotification('success', 'Успешная авторизация')
-      useRouter().push('/')
-    } else {
-      notificationStore.addNotification('error', 'Ошибка авторизации')
-    }
-  } catch (error) {
-    notificationStore.addNotification('error', 'Ошибка авторизации')
-  } finally {
-    loaderStore.isLoading = false
-  }
-}
-</script>

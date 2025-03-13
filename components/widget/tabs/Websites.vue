@@ -1,3 +1,60 @@
+<script lang="ts" setup>
+import type { Domain } from '~/types/widgets'
+
+const props = defineProps<{
+  widgetId: number,
+  domains: Domain[],
+}>()
+
+const emit = defineEmits(['update:domains'])
+
+const widgetStore = useWidgetStore()
+const notificationStore = useNotificationStore()
+
+const errorMessageDomains = ref('')
+const errorMessageInput = ref('')
+const newDomain = ref('')
+
+const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z]{2,}$/
+
+async function addDomain () {
+  const domain = newDomain.value.trim()
+
+  if (!domain) {
+    errorMessageInput.value = 'Введите домен.'
+    return
+  }
+
+  if (!domainRegex.test(domain)) {
+    errorMessageInput.value = "Некорректный домен."
+    return
+  }
+
+  errorMessageInput.value = ''
+
+  try {
+    const response = await widgetStore.addDomain(props.widgetId, domain)
+    if (Array.isArray(response)) { 
+      emit('update:domains', response) 
+    }
+    newDomain.value = ''
+    notificationStore.addNotification('success', 'Домен успешно добавлен!')
+  } catch (error) {
+    errorMessageInput.value = 'Ошибка при добавлении домена.'
+    notificationStore.addNotification('error', 'Ошибка при добавлении домена.')
+  }
+}
+
+const removeDomain = async (domainId: number) => {
+  try {
+    await widgetStore.deleteDomain(domainId)
+    notificationStore.addNotification('success', 'Домен удален.')
+  } catch (error: any) {
+    notificationStore.addNotification('error', `${error.message}`)
+  }
+}
+</script>
+
 <template>
   <div>
     <div class="flex gap-4 mb-4">
@@ -47,67 +104,3 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-import type { Domain } from '~/types/widgets'
-
-const props = defineProps({
-  widgetId: {
-    type: Number,
-    required: true,
-  },
-  domains: {
-    type: Array<Domain>,
-    required: true,
-    default: () => [],
-  },
-})
-
-const emit = defineEmits(['update:domains'])
-
-const widgetStore = useWidgetStore()
-const notificationStore = useNotificationStore()
-
-const errorMessageDomains = ref('')
-const errorMessageInput = ref('')
-const newDomain = ref('')
-
-const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-_]+\.)*[a-zA-Z]{2,}$/
-
-const addDomain = async () => {
-  const domain = newDomain.value.trim()
-
-  if (!domain) {
-    errorMessageInput.value = 'Введите домен.'
-    return
-  }
-
-  if (!domainRegex.test(domain)) {
-    errorMessageInput.value = "Некорректный домен."
-    return
-  }
-
-  errorMessageInput.value = ''
-
-  try {
-    const response = await widgetStore.addDomain(props.widgetId, domain)
-    if (Array.isArray(response)) { 
-      emit('update:domains', response) 
-    }
-    newDomain.value = ''
-    notificationStore.addNotification('success', 'Домен успешно добавлен!')
-  } catch (error) {
-    errorMessageInput.value = 'Ошибка при добавлении домена.'
-    notificationStore.addNotification('error', 'Ошибка при добавлении домена.')
-  }
-}
-
-const removeDomain = async (domainId: number) => {
-  try {
-    await widgetStore.deleteDomain(domainId)
-    notificationStore.addNotification('success', 'Домен удален.')
-  } catch (error: any) {
-    notificationStore.addNotification('error', `${error.message}`)
-  }
-}
-</script>
