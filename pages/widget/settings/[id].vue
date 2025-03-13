@@ -1,3 +1,140 @@
+<script lang="ts" setup>
+import type { Domain, WidgetIcon, WidgetSettings } from '~/types/widgets'
+
+const route = useRoute()
+const widgetStore = useWidgetStore()
+
+useSeoMeta({
+  title: `Настройки виджета`
+})
+
+definePageMeta({
+  middleware: 'auth',
+})
+
+const widgetId = Number(route.params.id)
+
+const { data: widgetData } = await useAsyncData('settings', async () => {
+  const widget = await widgetStore.fetchWidgetId(widgetId)
+  return widget || null
+}, { server: false })
+
+const widgetSettings = ref<WidgetSettings>({
+  id: widgetId,
+  name: widgetData.value?.name || '',
+  is_active: false,
+  manager_tg_id: [],
+  icon: null,
+  base_icon: null,
+  start_hints: [],
+  welcome_text: '',
+  widget_left: false
+})
+
+const isEditing = ref(false)
+const editedName = ref('')
+const nameInput = ref<HTMLInputElement | null>(null)
+const tempSpan = ref<HTMLSpanElement | null>(null)
+const inputWidth = ref(100)
+
+const startEditing = () => {
+  isEditing.value = true
+  editedName.value = widgetData.value?.name || ''
+  nextTick(() => {
+    nameInput.value?.focus()
+    updateInputWidth()
+  })
+}
+
+const saveName = () => {
+  if (editedName.value.trim()) {
+    if (widgetData.value) {
+      widgetData.value.name = editedName.value.trim()
+    }
+  }
+  isEditing.value = false
+}
+
+const cancelEditing = () => {
+  isEditing.value = false
+  editedName.value = ''
+}
+
+const updateInputWidth = () => {
+  if (tempSpan.value && nameInput.value) {
+    tempSpan.value.textContent = editedName.value
+
+    const width = tempSpan.value.offsetWidth
+
+    inputWidth.value = Math.min(Math.max(width, 350), 800)
+  }
+}
+
+watch(editedName, () => {
+  updateInputWidth()
+})
+
+const activeTab = ref('websites')
+
+const tabs = [
+  { id: 'websites', label: 'Сайты', icon: 'ic:outline-public' },
+  { id: 'appearance', label: 'Оформление', icon: 'ic:outline-palette' },
+  { id: 'behavior', label: 'Поведение', icon: 'ic:outline-settings' },
+  { id: 'integrations', label: 'Интеграции', icon: 'ic:outline-integration-instructions' },
+  { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
+]
+
+const refreshDomains = async (newDomains: Domain[]) => {
+  if (widgetData.value) {
+    widgetData.value.domains = newDomains
+  }
+}
+
+const updateTelegramIds = (newTelegramIds: string[]) => {
+  if (widgetData.value) {
+    widgetData.value.manager_tg_id = newTelegramIds
+  }
+}
+
+const updateStartHints = (newStartHints: string[]) => {
+  if (widgetData.value) {
+    widgetData.value.start_hints = newStartHints
+  }
+}
+
+const updateWelcomeText = (newWelcomeText: string) => {
+  if (widgetData.value) {
+    widgetData.value.welcome_text = newWelcomeText
+  }
+}
+
+const handleIconSelect = (payload: { type: 'base_icon' | 'icon'; icon: WidgetIcon }) => {
+  if (payload.type === 'base_icon') {
+    widgetSettings.value.base_icon = payload.icon.id
+    widgetSettings.value.icon = null
+  } else if (payload.type === 'icon') {
+    widgetSettings.value.icon = payload.icon.id
+    widgetSettings.value.base_icon = null
+  }
+
+  if(widgetData.value) {
+    widgetData.value.icon = payload.icon
+  }
+}
+
+const saveSettings = async () => {
+  widgetSettings.value.name = widgetData.value?.name || ''
+  widgetSettings.value.is_active = widgetData.value?.is_active || false
+  widgetSettings.value.manager_tg_id = widgetData.value?.manager_tg_id || []
+  widgetSettings.value.widget_left = widgetData.value?.widget_left || false
+  widgetSettings.value.start_hints = widgetData.value?.start_hints || []
+  widgetSettings.value.welcome_text = widgetData.value?.welcome_text || ''
+  await widgetStore.updateWidget(widgetSettings.value.id, widgetSettings.value)
+  navigateTo('/widget')
+}
+
+</script>
+
 <template>
   <div v-if="widgetData">
     
@@ -139,143 +276,6 @@
     Загрузка...
   </div>
 </template>
-
-<script lang="ts" setup>
-import type { Domain, WidgetIcon, WidgetSettings } from '~/types/widgets'
-
-const route = useRoute()
-const widgetStore = useWidgetStore()
-
-useSeoMeta({
-  title: `Настройки виджета`
-})
-
-definePageMeta({
-  middleware: 'auth',
-})
-
-const widgetId = Number(route.params.id)
-
-const { data: widgetData } = await useAsyncData('settings', async () => {
-  const widget = await widgetStore.fetchWidgetId(widgetId)
-  return widget || null
-}, { server: false })
-
-const widgetSettings = ref<WidgetSettings>({
-  id: widgetId,
-  name: widgetData.value?.name || '',
-  is_active: false,
-  manager_tg_id: [],
-  icon: null,
-  base_icon: null,
-  start_hints: [],
-  welcome_text: '',
-  widget_left: false
-})
-
-const isEditing = ref(false)
-const editedName = ref('')
-const nameInput = ref<HTMLInputElement | null>(null)
-const tempSpan = ref<HTMLSpanElement | null>(null)
-const inputWidth = ref(100)
-
-const startEditing = () => {
-  isEditing.value = true
-  editedName.value = widgetData.value?.name || ''
-  nextTick(() => {
-    nameInput.value?.focus()
-    updateInputWidth()
-  })
-}
-
-const saveName = () => {
-  if (editedName.value.trim()) {
-    if (widgetData.value) {
-      widgetData.value.name = editedName.value.trim()
-    }
-  }
-  isEditing.value = false
-}
-
-const cancelEditing = () => {
-  isEditing.value = false
-  editedName.value = ''
-}
-
-const updateInputWidth = () => {
-  if (tempSpan.value && nameInput.value) {
-    tempSpan.value.textContent = editedName.value
-
-    const width = tempSpan.value.offsetWidth
-
-    inputWidth.value = Math.min(Math.max(width, 350), 800)
-  }
-}
-
-watch(editedName, () => {
-  updateInputWidth()
-})
-
-const activeTab = ref('websites')
-
-const tabs = [
-  { id: 'websites', label: 'Сайты', icon: 'ic:outline-public' },
-  { id: 'appearance', label: 'Оформление', icon: 'ic:outline-palette' },
-  { id: 'behavior', label: 'Поведение', icon: 'ic:outline-settings' },
-  { id: 'integrations', label: 'Интеграции', icon: 'ic:outline-integration-instructions' },
-  { id: 'code', label: 'Код виджета', icon: 'ic:outline-code' },
-]
-
-const refreshDomains = async (newDomains: Domain[]) => {
-  if (widgetData.value) {
-    widgetData.value.domains = newDomains
-  }
-}
-
-const updateTelegramIds = (newTelegramIds: string[]) => {
-  if (widgetData.value) {
-    widgetData.value.manager_tg_id = newTelegramIds
-  }
-}
-
-const updateStartHints = (newStartHints: string[]) => {
-  if (widgetData.value) {
-    widgetData.value.start_hints = newStartHints
-  }
-}
-
-const updateWelcomeText = (newWelcomeText: string) => {
-  if (widgetData.value) {
-    widgetData.value.welcome_text = newWelcomeText
-  }
-}
-
-const handleIconSelect = (payload: { type: 'base_icon' | 'icon'; icon: WidgetIcon }) => {
-  if (payload.type === 'base_icon') {
-    widgetSettings.value.base_icon = payload.icon.id
-    widgetSettings.value.icon = null
-  } else if (payload.type === 'icon') {
-    widgetSettings.value.icon = payload.icon.id
-    widgetSettings.value.base_icon = null
-  }
-
-  if(widgetData.value) {
-    widgetData.value.icon = payload.icon
-  }
-}
-
-const saveSettings = async () => {
-  widgetSettings.value.name = widgetData.value?.name || ''
-  widgetSettings.value.is_active = widgetData.value?.is_active || false
-  widgetSettings.value.manager_tg_id = widgetData.value?.manager_tg_id || []
-  widgetSettings.value.widget_left = widgetData.value?.widget_left || false
-  widgetSettings.value.start_hints = widgetData.value?.start_hints || []
-  widgetSettings.value.welcome_text = widgetData.value?.welcome_text || ''
-  await widgetStore.updateWidget(widgetSettings.value.id, widgetSettings.value)
-  navigateTo('/widget')
-}
-
-</script>
 
 <style>
 .invisible {

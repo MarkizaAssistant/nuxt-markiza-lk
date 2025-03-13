@@ -1,3 +1,21 @@
+<script lang="ts" setup>
+defineProps<{
+  isCollapsed: boolean
+}>()
+
+const authStore = useAuthStore()
+
+const { data: userData } = await useAsyncData('user', async () => {
+  const userProfile = await authStore.profile()
+  return userProfile || null
+}, { server: false })
+
+async function onLogout () {
+  await authStore.logout()
+  useRouter().push('/auth/login')
+}
+</script>
+
 <template>
   <header class="w-full h-28 flex justify-between bg-slate-800 px-4 items-center">
     <div class="flex items-center gap-4 text-white">
@@ -38,27 +56,6 @@
     </div>
   </header>
 </template>
-
-<script lang="ts" setup>
-defineProps({
-  isCollapsed: {
-    type: Boolean,
-    required: true
-  },
-})
-
-const authStore = useAuthStore()
-
-const { data: userData } = await useAsyncData('user', async () => {
-  const userProfile = await authStore.profile()
-  return userProfile || null
-}, { server: false })
-
-const onLogout = async () => {
-  const response = await authStore.logout()
-  useRouter().push('/auth/login')
-}
-</script>
 
 <style>
 

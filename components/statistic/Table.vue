@@ -1,3 +1,32 @@
+<script lang="ts" setup>
+const chatStore = useChatStore()
+const router = useRouter()
+const sortDirection = ref<'asc' | 'desc'>('asc')
+
+const { data: chatsData, status } = await useAsyncData('chats', async () => {
+  const chats = await chatStore.fetchChats()
+  return chats || null
+}, { server: false })
+
+const sortedChats = computed(() => {
+  if (chatsData.value === null) return
+
+  return [...chatsData.value].sort((a, b) => {
+    const dateA = new Date(a.date_last_message).getTime()
+    const dateB = new Date(b.date_last_message).getTime()
+    return sortDirection.value === 'asc' ? dateA - dateB : dateB - dateA
+  })
+})
+
+const sortByDate = () => {
+  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
+}
+
+const onClickDialog = (id: string) => {
+  router.push(`/statistic/${id}`)
+}
+</script>
+
 <template>
   <div class="relative">
     <div v-if="chatsData">
@@ -61,36 +90,7 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-const chatStore = useChatStore()
-const router = useRouter()
-const sortDirection = ref<'asc' | 'desc'>('asc')
-
-const { data: chatsData, status } = await useAsyncData('chats', async () => {
-  const chats = await chatStore.fetchChats()
-  return chats || null
-}, { server: false })
-
-const sortedChats = computed(() => {
-  if (chatsData.value === null) return
-
-  return [...chatsData.value].sort((a, b) => {
-    const dateA = new Date(a.date_last_message).getTime()
-    const dateB = new Date(b.date_last_message).getTime()
-    return sortDirection.value === 'asc' ? dateA - dateB : dateB - dateA
-  })
-})
-
-const sortByDate = () => {
-  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-}
-
-const onClickDialog = (id: string) => {
-  router.push(`/statistic/${id}`)
-}
-</script>
-
-<style scoped>
+<style lang="css" scoped>
 .table-header {
   @apply font-bold p-6 border-b text-left text-slate-800 bg-slate-300
 }

@@ -1,3 +1,7 @@
+<script lang="ts" setup>
+const loaderStore = useLoaderStore()
+</script>
+
 <template>
   <Transition name="fade">
     <div v-if="loaderStore.isLoading" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
@@ -5,10 +9,6 @@
     </div>
   </Transition>
 </template>
-
-<script lang="ts" setup>
-const loaderStore = useLoaderStore()
-</script>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active {

@@ -1,3 +1,18 @@
+<script setup lang="ts">
+defineProps<{
+  show: boolean
+  title: string
+  message: string
+  confirmText: string
+  cancelText: string
+}>()
+
+const emit = defineEmits(['confirm', 'cancel'])
+
+const onConfirm = () => emit('confirm')
+const onCancel = () => emit('cancel')
+</script>
+
 <template>
   <Teleport to="body">
     <div v-if="show" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -16,18 +31,3 @@
     </div>
   </Teleport>
 </template>
-
-<script setup lang="ts">
-defineProps<{
-  show: boolean
-  title: string
-  message: string
-  confirmText: string
-  cancelText: string
-}>()
-
-const emit = defineEmits(['confirm', 'cancel'])
-
-const onConfirm = () => emit('confirm')
-const onCancel = () => emit('cancel')
-</script>

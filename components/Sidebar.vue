@@ -1,3 +1,25 @@
+<script lang="ts" setup>
+defineProps<{
+  isCollapsed: boolean
+}>()
+
+type NAVIGATION = {
+  name: string,
+  link: string,
+  icon: string
+}
+
+const navigation = ref<NAVIGATION[]>([
+  { name: 'Главная', link: '/', icon: 'ic:baseline-home' },
+  { name: 'Статистика', link: '/statistic', icon: 'ic:baseline-bar-chart' },
+  { name: 'Виджет', link: '/widget', icon: 'ic:baseline-widgets' },
+  { name: 'Платежи', link: '/payments', icon: 'ic:baseline-payment' },
+  { name: 'Настройки', link: '/settings', icon: 'ic:baseline-settings' }
+])
+
+const route = useRoute()
+</script>
+
 <template>
   <aside
     class="bg-slate-800 border-r border-border transition-all duration-300 ease-in-out overflow-hidden"
@@ -17,31 +39,6 @@
     </nav>
   </aside>
 </template>
-
-<script lang="ts" setup>
-defineProps({
-  isCollapsed: {
-    type: Boolean,
-    required: true
-  }
-})
-
-type NAVIGATION = {
-  name: string,
-  link: string,
-  icon: string
-}
-
-const navigation = ref<NAVIGATION[]>([
-  { name: 'Главная', link: '/', icon: 'ic:baseline-home' },
-  { name: 'Статистика', link: '/statistic', icon: 'ic:baseline-bar-chart' },
-  { name: 'Виджет', link: '/widget', icon: 'ic:baseline-widgets' },
-  { name: 'Платежи', link: '/payments', icon: 'ic:baseline-payment' },
-  { name: 'Настройки', link: '/settings', icon: 'ic:baseline-settings' }
-])
-
-const route = useRoute()
-</script>
 
 <style>
 
