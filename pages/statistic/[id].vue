@@ -1,3 +1,17 @@
+<script lang="ts" setup>
+const route = useRoute()
+const chatStore = useChatStore()
+
+definePageMeta({
+  middleware: 'auth'
+})
+
+const { data: messagesData } = await useAsyncData('messages', async () => {
+  const messages = await chatStore.fetchMessages(Number(route.params.id))
+  return messages || null
+}, { server: false })
+</script>
+
 <template>
   <div class="flex flex-col gap-4">
     <div class="flex justify-end">
@@ -47,20 +61,6 @@
     </div>
   </div>
 </template>
-
-<script lang="ts" setup>
-const route = useRoute()
-const chatStore = useChatStore()
-
-definePageMeta({
-  middleware: 'auth'
-})
-
-const { data: messagesData } = await useAsyncData('messages', async () => {
-  const messages = await chatStore.fetchMessages(Number(route.params.id))
-  return messages || null
-}, { server: false })
-</script>
 
 <style scoped>
 .chat-container::-webkit-scrollbar {

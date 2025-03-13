@@ -1,9 +1,3 @@
-<template>
-  <div>
-    Страница с платежами
-  </div>
-</template>
-
 <script lang="ts" setup>
 useSeoMeta({
   title: 'Платежи',
@@ -14,6 +8,12 @@ definePageMeta({
   middleware: 'auth'
 })
 </script>
+
+<template>
+  <div>
+    Страница с платежами
+  </div>
+</template>
 
 <style>
 
