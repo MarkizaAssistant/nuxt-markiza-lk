@@ -23,6 +23,8 @@ export interface WidgetInfo extends Widget {
   domains: Domain[]
   icon: WidgetIcon
   widget_left: boolean
+  start_hints: string[]
+  welcome_text: string
 }
 
 export interface WidgetSettings extends Widget {

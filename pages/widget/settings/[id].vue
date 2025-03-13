@@ -112,11 +112,17 @@
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
           :widget-left="widgetData.widget_left"
+          :selected-icon="widgetData.icon"
           @select-icon="handleIconSelect"
           @update-position="widgetData.widget_left = $event"
         />
         <WidgetTabsBehavior
           v-if="activeTab === 'behavior'"
+          :start-hints="widgetData.start_hints || []"
+          :welcome-text="widgetData.welcome_text"
+          @update:start-hints="updateStartHints"
+          @update:welcome-text="updateWelcomeText"
+          
         />
         <WidgetTabsIntegrations
           v-if="activeTab === 'integrations'"
@@ -148,13 +154,15 @@ definePageMeta({
   middleware: 'auth',
 })
 
+const widgetId = Number(route.params.id)
+
 const { data: widgetData } = await useAsyncData('settings', async () => {
-  const widget = await widgetStore.fetchWidgetId(Number(route.params.id))
+  const widget = await widgetStore.fetchWidgetId(widgetId)
   return widget || null
 }, { server: false })
 
 const widgetSettings = ref<WidgetSettings>({
-  id: widgetData.value ? widgetData.value.id : 0,
+  id: widgetId,
   name: widgetData.value?.name || '',
   is_active: false,
   manager_tg_id: [],
@@ -230,6 +238,18 @@ const updateTelegramIds = (newTelegramIds: string[]) => {
   }
 }
 
+const updateStartHints = (newStartHints: string[]) => {
+  if (widgetData.value) {
+    widgetData.value.start_hints = newStartHints
+  }
+}
+
+const updateWelcomeText = (newWelcomeText: string) => {
+  if (widgetData.value) {
+    widgetData.value.welcome_text = newWelcomeText
+  }
+}
+
 const handleIconSelect = (payload: { type: 'base_icon' | 'icon'; icon: WidgetIcon }) => {
   if (payload.type === 'base_icon') {
     widgetSettings.value.base_icon = payload.icon.id
@@ -238,6 +258,10 @@ const handleIconSelect = (payload: { type: 'base_icon' | 'icon'; icon: WidgetIco
     widgetSettings.value.icon = payload.icon.id
     widgetSettings.value.base_icon = null
   }
+
+  if(widgetData.value) {
+    widgetData.value.icon = payload.icon
+  }
 }
 
 const saveSettings = async () => {
@@ -245,6 +269,8 @@ const saveSettings = async () => {
   widgetSettings.value.is_active = widgetData.value?.is_active || false
   widgetSettings.value.manager_tg_id = widgetData.value?.manager_tg_id || []
   widgetSettings.value.widget_left = widgetData.value?.widget_left || false
+  widgetSettings.value.start_hints = widgetData.value?.start_hints || []
+  widgetSettings.value.welcome_text = widgetData.value?.welcome_text || ''
   await widgetStore.updateWidget(widgetSettings.value.id, widgetSettings.value)
   navigateTo('/widget')
 }
