@@ -27,7 +27,7 @@ const onClickDialog = (id: string) => {
 }
 </script>
 
-<template>
+<!-- <template>
   <div class="relative">
     <div v-if="chatsData">
       <div v-if="status === 'success'">
@@ -88,7 +88,7 @@ const onClickDialog = (id: string) => {
       />
     </div>
   </div>
-</template>
+</template> -->
 
 <style lang="css" scoped>
 .table-header {
