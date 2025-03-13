@@ -11,8 +11,8 @@
               :key="icon.id"
               class="flex items-center gap-4 p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer"
               :class="{
-                'border-slate-800 opacity-100': selectedBaseIcon?.id === icon.id,
-                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedBaseIcon?.id !== icon.id,
+                'border-slate-800 opacity-100': localSelectedIcon?.id === icon.id,
+                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': localSelectedIcon?.id !== icon.id,
               }"
               @click="selectIcon(icon, 'base_icon')"
             >
@@ -40,71 +40,71 @@
               :key="icon.id"
               class="flex flex-col items-center gap-4 p-2 rounded-lg border-2 transition-all duration-300 cursor-pointer w-48"
               :class="{
-                'border-slate-800 opacity-100': selectedCustomIcon?.id === icon.id,
-                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': selectedCustomIcon?.id !== icon.id,
+                'border-slate-800 opacity-100': localSelectedIcon?.id === icon.id,
+                'border-slate-200 opacity-80 hover:border-slate-800 hover:opacity-100': localSelectedIcon?.id !== icon.id,
               }"
               @click="selectIcon(icon, 'icon')"
             >
-            <div class="w-full">
-              <div class="flex justify-end">
-                <button 
-                  class="text-slate-800 flex items-center"
-                  @click.stop="confirmRemoveCustomIcon(icon.id)"
-                >
-                  <Icon name="ic:outline-delete" class="size-6" />
-                </button>
-              </div>
-              <div class="flex justify-center">
-                <template v-if="isImage(icon.url)">
-                  <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-16 object-contain" />
-                </template>
-                <template v-else-if="isVideo(icon.url)">
-                  <video autoplay loop muted playsinline class="size-16 object-contain">
-                    <source :src="`https://api.yamarkiza.ru/${icon.url}`" />
-                  </video>
-                </template>
-                <template v-else>
-                  <span>Неподдерживаемый формат файла</span>
-                </template>
-              </div>
-  
-              <div class="flex items-center justify-between mb-4">
-                <div v-if="!isEditing(icon.id)" class="icon-name">{{ icon.name }}</div>
-                <input
-                  v-else
-                  type="text"
-                  v-model="editedIconName"
-                  @keyup.enter="saveIconName(icon.id)"
-                  @blur="saveIconName(icon.id)"
-                  class="p-1 border rounded w-full"
-                />
+              <div class="w-full">
+                <div class="flex justify-end">
+                  <button 
+                    class="text-slate-800 flex items-center"
+                    @click.stop="confirmRemoveCustomIcon(icon.id)"
+                  >
+                    <Icon name="ic:outline-delete" class="size-6" />
+                  </button>
+                </div>
+                <div class="flex justify-center">
+                  <template v-if="isImage(icon.url)">
+                    <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-16 object-contain" />
+                  </template>
+                  <template v-else-if="isVideo(icon.url)">
+                    <video autoplay loop muted playsinline class="size-16 object-contain">
+                      <source :src="`https://api.yamarkiza.ru/${icon.url}`" />
+                    </video>
+                  </template>
+                  <template v-else>
+                    <span>Неподдерживаемый формат файла</span>
+                  </template>
+                </div>
 
-                <button 
-                  v-if="!isEditing(icon.id)"
-                  class="text-slate-800 flex items-center"
-                  @click.stop="startEditing(icon.id, icon.name)"
-                >
-                  <Icon name="ic:baseline-edit" class="size-5" />
-                </button>
-              </div>
-    
-              <div class="flex justify-center gap-4">
-                <button 
-                  v-if="isEditing(icon.id)"
-                  class="border rounded-lg bg-green-500 p-2 text-white flex items-center"
-                  @click.stop="saveIconName(icon.id)"
-                >
-                  <Icon name="ic:outline-check" class="size-5" />
-                </button>
-    
-                <button 
-                  v-if="isEditing(icon.id)"
-                  class="border rounded-lg bg-red-500 p-2 text-white flex items-center"
-                  @click.stop="cancelEditing"
-                >
-                  <Icon name="ic:outline-close" class="size-5" />
-                </button>
-              </div>
+                <div class="flex items-center justify-between mb-4">
+                  <div v-if="!isEditing(icon.id)" class="icon-name">{{ icon.name }}</div>
+                  <input
+                    v-else
+                    type="text"
+                    v-model="editedIconName"
+                    @keyup.enter="saveIconName(icon.id)"
+                    @blur="saveIconName(icon.id)"
+                    class="p-1 border rounded w-full"
+                  />
+
+                  <button 
+                    v-if="!isEditing(icon.id)"
+                    class="text-slate-800 flex items-center"
+                    @click.stop="startEditing(icon.id, icon.name)"
+                  >
+                    <Icon name="ic:baseline-edit" class="size-5" />
+                  </button>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                  <button 
+                    v-if="isEditing(icon.id)"
+                    class="border rounded-lg bg-green-500 p-2 text-white flex items-center"
+                    @click.stop="saveIconName(icon.id)"
+                  >
+                    <Icon name="ic:outline-check" class="size-5" />
+                  </button>
+
+                  <button 
+                    v-if="isEditing(icon.id)"
+                    class="border rounded-lg bg-red-500 p-2 text-white flex items-center"
+                    @click.stop="cancelEditing"
+                  >
+                    <Icon name="ic:outline-close" class="size-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -170,6 +170,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  selectedIcon: {
+    type: Object as () => WidgetIcon | null,
+    required: true,
+  },
 })
 
 const { data: baseIcons } = await useAsyncData('baseIcons', async () => {
@@ -181,6 +185,8 @@ const { data: userIcons } = await useAsyncData('customIcons', async () => {
   const userIcons = await iconStore.fetchCustomIcons()
   return userIcons
 }, { server: false })
+
+const localSelectedIcon = ref<WidgetIcon | null>(props.selectedIcon)
 
 const isImage = (url: string) => {
   const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif']
@@ -239,7 +245,6 @@ const selectIcon = (icon: WidgetIcon, type: 'base_icon' | 'icon') => {
   if (type === 'base_icon') {
     selectedBaseIcon.value = icon
     selectedCustomIcon.value = null
-    
   }
 
   if (type === 'icon') {
@@ -247,6 +252,7 @@ const selectIcon = (icon: WidgetIcon, type: 'base_icon' | 'icon') => {
     selectedBaseIcon.value = null
   }
 
+  localSelectedIcon.value = icon
   emit('select-icon', { type, icon })
 }
 

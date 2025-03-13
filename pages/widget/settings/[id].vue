@@ -112,6 +112,7 @@
         <WidgetTabsAppearance
           v-if="activeTab === 'appearance'"
           :widget-left="widgetData.widget_left"
+          :selected-icon="widgetData.icon"
           @select-icon="handleIconSelect"
           @update-position="widgetData.widget_left = $event"
         />
@@ -256,6 +257,10 @@ const handleIconSelect = (payload: { type: 'base_icon' | 'icon'; icon: WidgetIco
   } else if (payload.type === 'icon') {
     widgetSettings.value.icon = payload.icon.id
     widgetSettings.value.base_icon = null
+  }
+
+  if(widgetData.value) {
+    widgetData.value.icon = payload.icon
   }
 }
 
