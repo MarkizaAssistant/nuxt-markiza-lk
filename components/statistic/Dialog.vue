@@ -1,29 +1,30 @@
 <script lang="ts" setup>
-const route = useRoute()
 const chatStore = useChatStore()
 
-definePageMeta({
-  middleware: 'auth'
-})
+const props = defineProps<{
+  chatId: number
+  widgetName: string
+}>()
 
-const { data: messagesData } = await useAsyncData('messages', async () => {
-  const messages = await chatStore.fetchMessages(Number(route.params.id))
-  return messages || null
-}, { server: false })
+const messagesData = ref<any[] | null>(null)
+
+const fetchMessages = async (chatId: number) => {
+  messagesData.value = await chatStore.fetchMessages(chatId)
+}
+
+watch(() => props.chatId, (newChatId) => {
+  if (newChatId) {
+    fetchMessages(newChatId)
+  }
+}, { immediate: true })
 </script>
 
 <template>
-  <div class="flex flex-col gap-4">
-    <div class="flex justify-end">
-      <Button 
-        class="bg-slate-700 text-white hover:bg-slate-600 p-4 text-xl"
-        @click="useRouter().push('/statistic')"
-      >
-        Назад
-      </Button>
+  <div class="flex flex-col">
+    <div class="p-4 border-b">
+      {{ widgetName }}
     </div>
-
-    <div class="flex flex-col max-h-[700px] space-y-4 px-14 py-12 border bg-slate-50 shadow-md rounded-lg overflow-y-auto chat-container">
+    <div class="flex bg-gray-100 flex-col max-h-[700px] space-y-4 px-14 py-12 overflow-y-auto chat-container">
       <div v-if="messagesData">
         <div v-if="chatStore.hasMessages">
           <div
@@ -44,19 +45,17 @@ const { data: messagesData } = await useAsyncData('messages', async () => {
                 <p v-else class="text-lg" v-html="item.message"></p>
               </div>
               <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-                <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
+                <span class="text-xs">{{ $dayjs(item.date).format('HH:mm:ss DD.MM.YY') }}</span>
               </div>
             </div>
           </div>
         </div>
-
+  
         <div v-else>Диалогов нет</div>
       </div>
+      
       <div v-else>
-        <SkeletonLoader
-          type="chat" 
-          :count="4"
-        />
+        <SkeletonLoader type="chat" :count="4" />
       </div>
     </div>
   </div>
