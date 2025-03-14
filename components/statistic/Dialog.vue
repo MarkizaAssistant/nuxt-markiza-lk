@@ -45,7 +45,7 @@ watch(() => props.chatId, (newChatId) => {
                 <p v-else class="text-lg" v-html="item.message"></p>
               </div>
               <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-                <span class="text-xs">{{ $dayjs(item.date).format('HH:MM DD.MM.YY') }}</span>
+                <span class="text-xs">{{ $dayjs(item.date).format('HH:mm:ss DD.MM.YY') }}</span>
               </div>
             </div>
           </div>

@@ -7,23 +7,26 @@ import { useVirtualList } from '@vueuse/core'
 const props = defineProps<{
   chats: ChatPreview[]
   selectedChatId: number
+  totalChats: number
 }>()
 
 const emit = defineEmits(['select-chat'])
 
 dayjs.locale('ru')
 
-const { list, containerProps, wrapperProps } = useVirtualList(props.chats, {
+const chatList = computed(() => props.chats)
+
+const { list, containerProps, wrapperProps } = useVirtualList(chatList, {
   itemHeight: 100,
   overscan: 5
 })
 
-function isImage (url: string) {
+function isImage(url: string) {
   const imageExtensions = ['.png', '.jpg', '.jpeg']
   return imageExtensions.some(ext => url.toLowerCase().endsWith(ext))
 }
 
-function isVideo (url: string) {
+function isVideo(url: string) {
   const videoExtensions = ['.mp4', '.webm']
   return videoExtensions.some(ext => url.toLowerCase().endsWith(ext))
 }
@@ -33,9 +36,10 @@ function isVideo (url: string) {
   <div class="p-2 w-full">
     <div class="flex flex-col gap-4">
       <div class="text-sm text-gray-500">
-        Показано: {{ chats.length }} из {{ chats.length }} диалогов
+        Показано: {{ chatList.length }} из {{ totalChats }} диалогов
       </div>
 
+      <!-- Список чатов -->
       <div class="w-full">
         <div v-bind="containerProps" class="overflow-y-auto chat-container h-[570px] pr-4">
           <div v-bind="wrapperProps" class="flex flex-col gap-4">

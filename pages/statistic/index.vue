@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { ChatPreview } from '~/types/chats'
+import dayjs from 'dayjs'
+import 'dayjs/locale/ru'
 
 const chatStore = useChatStore()
 
@@ -18,8 +20,43 @@ const widgetNameCookie = useCookie<string>('widgetName', { default: () => '' })
 const chatId = ref(chatIdCookie.value)
 const widgetName = ref(widgetNameCookie.value)
 
+const selectedDate = ref<string | null>(null)
+
 const { data: chatsData } = await useAsyncData('chats', async () => {
-  return await chatStore.fetchChats()
+  const data = await chatStore.fetchChats()
+
+  // Добавляем несколько тестовых значений в chatsData
+  const testChats: ChatPreview[] = [
+    {
+      id: 9991,
+      widget_owner: 1,
+      date_last_message: '2023-10-01T12:00:00',
+      note: null,
+      widget_name: 'Тестовый чат 1',
+      icon: {
+        id: 0,
+        type: 'base',
+        url: '/path/to/icon1.png',
+        name: 'icon1'
+      }
+    },
+    {
+      id: 9992,
+      widget_owner: 1,
+      date_last_message: '2023-10-02T14:30:00',
+      note: 'Тестовый чат 2',
+      widget_name: 'Тестовый чат 2',
+      icon: {
+        id: 0,
+        type: 'base',
+        url: '/path/to/icon2.png',
+        name: 'icon2'
+      }
+    }
+  ]
+
+  // Добавляем тестовые чаты в данные
+  return [...data, ...testChats]
 }, { 
   server: false
 })
@@ -32,13 +69,24 @@ if (chatsData.value && chatId.value === 0) {
   widgetNameCookie.value = widgetName.value
 }
 
-function handleChat (chat: ChatPreview) {
+const filteredChats = computed(() => {
+  if (!chatsData.value) return []
+  if (!selectedDate.value) return chatsData.value
+
+  return chatsData.value.filter(chat => {
+    return dayjs(chat.date_last_message).isSame(selectedDate.value, 'day')
+  })
+})
+
+function handleChat(chat: ChatPreview) {
   chatId.value = chat.id
   widgetName.value = chat.widget_name
 
   chatIdCookie.value = chat.id
   widgetNameCookie.value = chat.widget_name
 }
+
+
 </script>
 
 <template>
@@ -48,15 +96,22 @@ function handleChat (chat: ChatPreview) {
     <div v-if="chatsData">
       <div class="w-full border h-[700px] p-4 rounded-lg shadow-md flex flex-col">
         <div class="w-full border-b border-gray-200 pb-2">
-          <button class="px-4 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700">
-            Фильтры
-          </button>
+          <div class="flex items-center gap-4">
+            <label for="date-filter" class="text-sm text-gray-500">Фильтр по дате:</label>
+            <input
+              id="date-filter"
+              v-model="selectedDate"
+              type="date"
+              class="p-2 border border-gray-300 rounded-lg"
+            />
+          </div>
         </div>
   
         <div class="flex flex-1 w-full overflow-hidden">
           <StatisticList
             class="max-w-sm w-full border-r"
-            :chats="chatsData"
+            :chats="filteredChats"
+            :total-chats="chatsData.length || 0"
             :selected-chat-id="chatId"
             @select-chat="handleChat"
           />
@@ -69,10 +124,8 @@ function handleChat (chat: ChatPreview) {
       </div>
     </div>
     <div v-else>Загрузка чатов...</div>
-
   </div>
 </template>
 
 <style>
-
 </style>
