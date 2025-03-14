@@ -21,9 +21,13 @@ const chatId = ref(chatIdCookie.value)
 const widgetName = ref(widgetNameCookie.value)
 
 const selectedDate = ref<string | null>(null)
+  const isLoading = ref(false)
 
-const { data: chatsData } = await useAsyncData('chats', async () => {
-  return await chatStore.fetchChats()
+const { data: chatsData, status } = await useAsyncData('chats', async () => {
+  isLoading.value = true
+  const data = await chatStore.fetchChats()
+  isLoading.value = false
+  return data
 }, { 
   server: false
 })
@@ -38,10 +42,16 @@ if (chatsData.value && chatId.value === 0) {
 
 const filteredChats = computed(() => {
   if (!chatsData.value) return []
-  if (!selectedDate.value) return chatsData.value
 
-  return chatsData.value.filter(chat => {
-    return dayjs(chat.date_last_message).isSame(selectedDate.value, 'day')
+  let chats = chatsData.value
+  if (selectedDate.value) {
+    chats = chats.filter(chat => {
+      return dayjs(chat.date_last_message).isSame(selectedDate.value, 'day')
+    })
+  }
+
+  return chats.sort((a, b) => {
+    return dayjs(b.date_last_message).unix() - dayjs(a.date_last_message).unix()
   })
 })
 
@@ -60,7 +70,8 @@ function handleChat(chat: ChatPreview) {
   <div class="flex flex-col gap-4 h-full">
     <h2 class="text-2xl font-bold">Список диалогов</h2>
 
-    <div v-if="chatsData">
+    <div v-if="isLoading">Загрузка чатов...</div>
+    <div v-else-if="chatsData">
       <div class="w-full border h-[700px] p-4 rounded-lg shadow-md flex flex-col">
         <div class="w-full border-b border-gray-200 pb-2">
           <div class="flex items-center gap-4">
@@ -90,7 +101,7 @@ function handleChat(chat: ChatPreview) {
         </div>
       </div>
     </div>
-    <div v-else>Загрузка чатов...</div>
+    <div v-else>Нет данных</div>
   </div>
 </template>
 
