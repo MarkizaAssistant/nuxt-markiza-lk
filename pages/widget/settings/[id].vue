@@ -239,7 +239,7 @@ const saveSettings = async () => {
       </ul>
 
       <!-- Content -->
-      <div class="mb-4 border rounded-lg p-4 shadow-sm">
+      <div>
         <WidgetTabsWebsites
           v-if="activeTab === 'websites'"
           :widgetId="widgetData.id"
