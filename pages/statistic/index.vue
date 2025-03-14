@@ -23,40 +23,7 @@ const widgetName = ref(widgetNameCookie.value)
 const selectedDate = ref<string | null>(null)
 
 const { data: chatsData } = await useAsyncData('chats', async () => {
-  const data = await chatStore.fetchChats()
-
-  // Добавляем несколько тестовых значений в chatsData
-  const testChats: ChatPreview[] = [
-    {
-      id: 9991,
-      widget_owner: 1,
-      date_last_message: '2023-10-01T12:00:00',
-      note: null,
-      widget_name: 'Тестовый чат 1',
-      icon: {
-        id: 0,
-        type: 'base',
-        url: '/path/to/icon1.png',
-        name: 'icon1'
-      }
-    },
-    {
-      id: 9992,
-      widget_owner: 1,
-      date_last_message: '2023-10-02T14:30:00',
-      note: 'Тестовый чат 2',
-      widget_name: 'Тестовый чат 2',
-      icon: {
-        id: 0,
-        type: 'base',
-        url: '/path/to/icon2.png',
-        name: 'icon2'
-      }
-    }
-  ]
-
-  // Добавляем тестовые чаты в данные
-  return [...data, ...testChats]
+  return await chatStore.fetchChats()
 }, { 
   server: false
 })
