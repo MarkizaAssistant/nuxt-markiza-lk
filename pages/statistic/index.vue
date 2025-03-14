@@ -21,55 +21,13 @@ const chatId = ref(chatIdCookie.value)
 const widgetName = ref(widgetNameCookie.value)
 
 const selectedDate = ref<string | null>(null)
+  const isLoading = ref(false)
 
-const { data: chatsData } = await useAsyncData('chats', async () => {
+const { data: chatsData, status } = await useAsyncData('chats', async () => {
+  isLoading.value = true
   const data = await chatStore.fetchChats()
-
-  // Добавляем несколько тестовых значений в chatsData
-  const testChats: ChatPreview[] = [
-    {
-      id: 9991,
-      widget_owner: 1,
-      date_last_message: '2023-10-01T12:00:00',
-      note: null,
-      widget_name: 'Тестовый чат 1',
-      icon: {
-        id: 0,
-        type: 'base',
-        url: '/path/to/icon1.png',
-        name: 'icon1'
-      }
-    },
-    {
-      id: 9992,
-      widget_owner: 1,
-      date_last_message: '2025-10-02T14:30:00',
-      note: 'Тестовый чат 2',
-      widget_name: 'Тестовый чат 2',
-      icon: {
-        id: 0,
-        type: 'base',
-        url: '/path/to/icon2.png',
-        name: 'icon2'
-      }
-    },
-    {
-      id: 9993,
-      widget_owner: 1,
-      date_last_message: '2025-10-02T14:30:05',
-      note: 'Тестовый чат 2',
-      widget_name: 'Тестовый чат 2',
-      icon: {
-        id: 0,
-        type: 'base',
-        url: '/path/to/icon2.png',
-        name: 'icon2'
-      }
-    },
-  ]
-
-  // Добавляем тестовые чаты в данные
-  return [...data, ...testChats]
+  isLoading.value = false
+  return data
 }, { 
   server: false
 })
@@ -85,7 +43,6 @@ if (chatsData.value && chatId.value === 0) {
 const filteredChats = computed(() => {
   if (!chatsData.value) return []
 
-  // Фильтрация по дате, если selectedDate указан
   let chats = chatsData.value
   if (selectedDate.value) {
     chats = chats.filter(chat => {
@@ -93,7 +50,6 @@ const filteredChats = computed(() => {
     })
   }
 
-  // Сортировка по дате последнего сообщения в порядке убывания
   return chats.sort((a, b) => {
     return dayjs(b.date_last_message).unix() - dayjs(a.date_last_message).unix()
   })
@@ -114,7 +70,8 @@ function handleChat(chat: ChatPreview) {
   <div class="flex flex-col gap-4 h-full">
     <h2 class="text-2xl font-bold">Список диалогов</h2>
 
-    <div v-if="chatsData">
+    <div v-if="isLoading">Загрузка чатов...</div>
+    <div v-else-if="chatsData">
       <div class="w-full border h-[700px] p-4 rounded-lg shadow-md flex flex-col">
         <div class="w-full border-b border-gray-200 pb-2">
           <div class="flex items-center gap-4">
@@ -144,7 +101,7 @@ function handleChat(chat: ChatPreview) {
         </div>
       </div>
     </div>
-    <div v-else>Загрузка чатов...</div>
+    <div v-else>Нет данных</div>
   </div>
 </template>
 
