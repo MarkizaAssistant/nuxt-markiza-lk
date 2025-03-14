@@ -31,21 +31,20 @@ function updateWelcomeText () {
 </script>
 
 <template>
-  <div class="flex flex-col gap-8">
-    <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2 border border-gray-300 rounded-lg shadow-sm p-4">
       <label class="block">Напишите первое приветствие:</label>
-      <input
+      <textarea
         v-model="localWelcomeText"
-        type="text"
         placeholder="Введите приветствующее сообщение"
-        class="p-2 border border-gray-300 rounded-lg w-1/3"
+        class="p-2 border border-gray-300 rounded-lg"
         @input="updateWelcomeText"
-      />
+      ></textarea>
       <span class="text-sm text-gray-500">Данный текст будет показываться новым клиентам, как первое сообщение.</span>
       <span class="text-sm text-gray-500">Подсказка: Призывайте начать диалог. Задайте вопрос, или кратко сообщите чем чат может быть полезен.</span>
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 border border-gray-300 rounded-lg shadow-sm p-4">
       <label class="block">Заполните несколько (мы рекомендуем 4) стартовых примера сообщений:</label>
       <div class="flex flex-col gap-4">
         <div class="flex gap-2">

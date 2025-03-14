@@ -23,7 +23,7 @@ function removeTelegramId (index: number) {
 </script>
 
 <template>
-  <div>
+  <div class="border border-gray-300 rounded-lg shadow-sm p-4">
     <div class="flex gap-2 mb-4">
       <input
         v-model="newTelegramId"

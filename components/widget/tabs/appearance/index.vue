@@ -60,37 +60,55 @@ function updatePosition (value: boolean) {
 </script>
 
 <template>
-  <div>
-    <div v-if="baseIcons">
-      <WidgetTabsAppearanceBaseIcons
-        :base-icons="baseIcons"
-        :selected-icon="selectedIcon"
-        :has-base-icons="iconStore.hasBaseIcons"
-        @select-icon="handleSelectIcon"
-      />
+  <div class="flex flex-col gap-4 overflow-y-auto h-[600px] table-container pr-2">
+    <div class="border border-gray-300 rounded-lg shadow-sm p-4">
+      <div v-if="baseIcons">
+        <WidgetTabsAppearanceBaseIcons
+          :base-icons="baseIcons"
+          :selected-icon="selectedIcon"
+          :has-base-icons="iconStore.hasBaseIcons"
+          @select-icon="handleSelectIcon"
+        />
+      </div>
+      <div v-else>Загрузка базовых иконок...</div>
+  
+      <div v-if="customIcons">
+        <WidgetTabsAppearanceCustomIcons
+          :user-icons="customIcons"
+          :selected-icon="selectedIcon"
+          :has-custom-icons="iconStore.hasCustomIcons"
+          @select-icon="handleSelectIcon"
+          @remove-icon="handleRemoveIcon"
+          @update-icon-name="handleUpdateIconName"
+          @upload-icon="handleUploadIcon"
+        />
+      </div>
+      <div v-else>Загрузка пользовательских иконок...</div>
     </div>
-    <div v-else>Загрузка базовых иконок...</div>
-
-    <div v-if="customIcons">
-      <WidgetTabsAppearanceCustomIcons
-        :user-icons="customIcons"
-        :selected-icon="selectedIcon"
-        :has-custom-icons="iconStore.hasCustomIcons"
-        @select-icon="handleSelectIcon"
-        @remove-icon="handleRemoveIcon"
-        @update-icon-name="handleUpdateIconName"
-        @upload-icon="handleUploadIcon"
-      />
-    </div>
-    <div v-else>Загрузка пользовательских иконок...</div>
     
-    <WidgetTabsAppearancePositionSelector
-      :widget-left="widgetLeft"
-      @update-position="updatePosition"
-    />
+    <div class="border border-gray-300 rounded-lg shadow-sm p-4">
+      <WidgetTabsAppearancePositionSelector
+        :widget-left="widgetLeft"
+        @update-position="updatePosition"
+      />
+    </div>
   </div>
 </template>
 
-<style>
+<style lang="css" scoped>
+.table-container::-webkit-scrollbar {
+  @apply w-2
+}
 
+.table-container::-webkit-scrollbar-track {
+  @apply bg-gray-50 rounded-lg
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  @apply rounded-lg bg-slate-700
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-600
+}
 </style>
