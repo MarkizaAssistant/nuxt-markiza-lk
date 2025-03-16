@@ -32,12 +32,14 @@ const { data: chatsData, status } = await useAsyncData('chats', async () => {
   server: false
 })
 
-if (chatsData.value && chatId.value === 0) {
-  chatId.value = chatsData.value[0].id
-  widgetName.value = chatsData.value[0].widget_name
+if (chatId.value === 0) {
+  if (chatsData.value && chatsData.value.length > 0) {
+    chatId.value = chatsData.value[0].id
+    widgetName.value = chatsData.value[0].widget_name
 
-  chatIdCookie.value = chatId.value
-  widgetNameCookie.value = widgetName.value
+    chatIdCookie.value = chatId.value
+    widgetNameCookie.value = widgetName.value
+  }
 }
 
 const filteredChats = computed(() => {
@@ -71,37 +73,39 @@ function handleChat(chat: ChatPreview) {
     <h2 class="text-2xl font-bold">Список диалогов</h2>
 
     <div v-if="isLoading">Загрузка чатов...</div>
-    <div v-else-if="chatsData">
-      <div class="w-full border h-[700px] p-4 rounded-lg shadow-md flex flex-col">
-        <div class="w-full border-b border-gray-200 pb-2">
-          <div class="flex items-center gap-4">
-            <label for="date-filter" class="text-sm text-gray-500">Фильтр по дате:</label>
-            <input
-              id="date-filter"
-              v-model="selectedDate"
-              type="date"
-              class="p-2 border border-gray-300 rounded-lg"
+    <div v-else>
+      <div v-if="chatsData">
+        <div class="w-full border h-[700px] p-4 rounded-lg shadow-md flex flex-col">
+          <div class="w-full border-b border-gray-200 pb-2">
+            <div class="flex items-center gap-4">
+              <label for="date-filter" class="text-sm text-gray-500">Фильтр по дате:</label>
+              <input
+                id="date-filter"
+                v-model="selectedDate"
+                type="date"
+                class="p-2 border border-gray-300 rounded-lg"
+              />
+            </div>
+          </div>
+    
+          <div class="flex flex-1 w-full overflow-hidden">
+            <StatisticList
+              class="max-w-sm w-full border-r"
+              :chats="filteredChats"
+              :total-chats="chatsData.length || 0"
+              :selected-chat-id="chatId"
+              @select-chat="handleChat"
+            />
+            <StatisticDialog
+              class="w-full"
+              :chat-id="chatId"
+              :widget-name="widgetName"
             />
           </div>
         </div>
-  
-        <div class="flex flex-1 w-full overflow-hidden">
-          <StatisticList
-            class="max-w-sm w-full border-r"
-            :chats="filteredChats"
-            :total-chats="chatsData.length || 0"
-            :selected-chat-id="chatId"
-            @select-chat="handleChat"
-          />
-          <StatisticDialog
-            class="w-full"
-            :chat-id="chatId"
-            :widget-name="widgetName"
-          />
-        </div>
       </div>
+      <div v-else>Нет данных</div>
     </div>
-    <div v-else>Нет данных</div>
   </div>
 </template>
 
