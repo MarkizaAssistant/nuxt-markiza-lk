@@ -14,7 +14,7 @@ export interface Domain {
 export interface WidgetIcon {
   id: number
   type: string
-  url: string
+  url: string | null
   name: string
 }
 

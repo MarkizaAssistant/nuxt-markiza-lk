@@ -40,11 +40,11 @@ function isVideo(url: string) {
       </div>
 
       <!-- Список чатов -->
-      <div class="w-full">
+      <div class="w-full" v-if="totalChats > 0">
         <div v-bind="containerProps" class="overflow-y-auto chat-container h-[570px] pr-4">
           <div v-bind="wrapperProps" class="flex flex-col gap-4">
             <div
-              v-for="item in list"
+              v-for="(item, index) in list"
               :key="item.index"
               class="p-4 rounded-lg cursor-pointer flex flex-col pb-4"
               :class="{
@@ -55,16 +55,13 @@ function isVideo(url: string) {
             >
               <div class="flex">
                 <div class="mr-4 flex items-center justify-center">
-                  <template v-if="isImage(item.data.icon.url)">
-                    <img :src="`https://api.yamarkiza.ru/${item.data.icon.url}`" :alt="item.data.icon.name" class="rounded-full size-12 object-contain" />
-                  </template>
-                  <template v-else-if="isVideo(item.data.icon.url)">
-                    <video autoplay loop muted playsinline class="rounded-full size-12 object-contain">
-                      <source :src="`https://api.yamarkiza.ru/${item.data.icon.url}`" />
-                    </video>
+                  <template v-if="item.data.icon.url">
+                    <img :src="`https://api.yamarkiza.ru/${item.data.icon.url}`" :alt="item.data.icon.name" class="rounded-full size-12 object-cover" />
                   </template>
                   <template v-else>
-                    <span>Ошибка</span>
+                    <div class="rounded-full size-12 bg-gradient-to-r from-slate-500 to-gray-500 flex justify-center items-center text-white font-bold">
+                      {{ index + 1 }}
+                    </div>
                   </template>
                 </div>
                 <div class="flex flex-col gap-2">
@@ -80,6 +77,8 @@ function isVideo(url: string) {
           </div>
         </div>
       </div>
+
+      <div v-else>Список пуст</div>
     </div>
   </div>
 </template>
