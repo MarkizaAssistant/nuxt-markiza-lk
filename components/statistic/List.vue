@@ -44,7 +44,7 @@ function isVideo(url: string) {
         <div v-bind="containerProps" class="overflow-y-auto chat-container h-[570px] pr-4">
           <div v-bind="wrapperProps" class="flex flex-col gap-4">
             <div
-              v-for="item in list"
+              v-for="(item, index) in list"
               :key="item.index"
               class="p-4 rounded-lg cursor-pointer flex flex-col pb-4"
               :class="{
@@ -56,12 +56,11 @@ function isVideo(url: string) {
               <div class="flex">
                 <div class="mr-4 flex items-center justify-center">
                   <template v-if="item.data.icon.url">
-                    <!-- <img :src="`https://api.yamarkiza.ru/${item.data.icon.url}`" :alt="item.data.icon.name" class="rounded-full size-12 object-contain" /> -->
-                    <img :src="item.data.icon.url" :alt="item.data.icon.name" class="rounded-full size-12 object-cover" />
+                    <img :src="`https://api.yamarkiza.ru/${item.data.icon.url}`" :alt="item.data.icon.name" class="rounded-full size-12 object-cover" />
                   </template>
                   <template v-else>
                     <div class="rounded-full size-12 bg-gradient-to-r from-slate-500 to-gray-500 flex justify-center items-center text-white font-bold">
-                      {{ item.data.widget_name.slice(0, 1) }}
+                      {{ index + 1 }}
                     </div>
                   </template>
                 </div>
