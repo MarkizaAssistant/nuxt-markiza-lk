@@ -1,5 +1,5 @@
-import { transformChatsInfoToChatPreview } from "~/server/utils/chats/transform"
-import { ChatInfo } from "~/types/chats"
+import { ChatInfo, ChatPreview } from "~/types/chats"
+import { WidgetPreview } from "~/types/widgets"
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -24,9 +24,24 @@ export default defineEventHandler(async (event) => {
       credentials: 'include'
     })
 
-    const chatsPreview = await Promise.all(
-      chatsInfo.map((chat) => transformChatsInfoToChatPreview(chat, event))
-    )
+    const widgets = await $fetch<WidgetPreview[]>('/api/v1/widget-info/', {
+      method: 'GET',
+      baseURL: config.public.apiBase,
+      headers: {
+        'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`
+      },
+      credentials: 'include'
+    })
+
+    const widgetMap = new Map(widgets.map(widget => [widget.id, widget]))
+
+    const chatsPreview: ChatPreview[] = chatsInfo.map(chat => ({
+      id: chat.id,
+      date_last_message: chat.date_last_message,
+      widget_owner: chat.widget_owner,
+      note: chat.note,
+      widget_name: widgetMap.get(chat.widget_owner)?.name || ''
+    }))
 
     return chatsPreview
   } catch (error: any) {
