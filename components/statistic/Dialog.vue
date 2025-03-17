@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { Message } from '~/types/chats';
 
 const chatStore = useChatStore()
 

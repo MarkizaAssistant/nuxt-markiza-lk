@@ -21,26 +21,22 @@ const chatId = ref(chatIdCookie.value)
 const widgetName = ref(widgetNameCookie.value)
 
 const selectedDate = ref<string | null>(null)
-  const isLoading = ref(false)
+const isLoading = ref(false)
+const chatsData = ref<ChatPreview[] | null>(null)
 
-const { data: chatsData } = await useAsyncData('chats', async () => {
+onMounted(async () => {
   isLoading.value = true
-  const data = await chatStore.fetchChats()
+  chatsData.value = await chatStore.fetchChats()
   isLoading.value = false
-  return data
-}, { 
-  server: false
-})
 
-if (chatId.value === 0) {
-  if (chatsData.value && chatsData.value.length > 0) {
+  if (chatId.value === 0 && chatsData.value && chatsData.value.length > 0) {
     chatId.value = chatsData.value[0].id
     widgetName.value = chatsData.value[0].widget_name
 
     chatIdCookie.value = chatId.value
     widgetNameCookie.value = widgetName.value
   }
-}
+})
 
 const filteredChats = computed(() => {
   if (!chatsData.value) return []
@@ -64,8 +60,6 @@ function handleChat(chat: ChatPreview) {
   chatIdCookie.value = chat.id
   widgetNameCookie.value = chat.widget_name
 }
-
-
 </script>
 
 <template>
