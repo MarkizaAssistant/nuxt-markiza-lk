@@ -23,7 +23,7 @@ const widgetName = ref(widgetNameCookie.value)
 const selectedDate = ref<string | null>(null)
   const isLoading = ref(false)
 
-const { data: chatsData, status } = await useAsyncData('chats', async () => {
+const { data: chatsData } = await useAsyncData('chats', async () => {
   isLoading.value = true
   const data = await chatStore.fetchChats()
   isLoading.value = false

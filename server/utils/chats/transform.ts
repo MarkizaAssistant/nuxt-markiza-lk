@@ -40,11 +40,5 @@ export async function transformChatsInfoToChatPreview(chatInfo: ChatInfo, event:
     widget_owner: chatInfo.widget_owner,
     note: chatInfo.note,
     widget_name: widget?.name || '',
-    icon: widget?.icon || {
-      id: 0,
-      name: '',
-      type: '',
-      url: ''
-    }
   }
 }

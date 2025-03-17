@@ -20,16 +20,6 @@ const { list, containerProps, wrapperProps } = useVirtualList(chatList, {
   itemHeight: 100,
   overscan: 5
 })
-
-function isImage(url: string) {
-  const imageExtensions = ['.png', '.jpg', '.jpeg']
-  return imageExtensions.some(ext => url.toLowerCase().endsWith(ext))
-}
-
-function isVideo(url: string) {
-  const videoExtensions = ['.mp4', '.webm']
-  return videoExtensions.some(ext => url.toLowerCase().endsWith(ext))
-}
 </script>
 
 <template>
@@ -44,7 +34,7 @@ function isVideo(url: string) {
         <div v-bind="containerProps" class="overflow-y-auto chat-container h-[570px] pr-4">
           <div v-bind="wrapperProps" class="flex flex-col gap-4">
             <div
-              v-for="(item, index) in list"
+              v-for="item in list"
               :key="item.index"
               class="p-4 rounded-lg cursor-pointer flex flex-col pb-4"
               :class="{
@@ -55,14 +45,11 @@ function isVideo(url: string) {
             >
               <div class="flex">
                 <div class="mr-4 flex items-center justify-center">
-                  <template v-if="item.data.icon.url">
-                    <img :src="`https://api.yamarkiza.ru/${item.data.icon.url}`" :alt="item.data.icon.name" class="rounded-full size-12 object-cover" />
-                  </template>
-                  <template v-else>
+                  <div>
                     <div class="rounded-full size-12 bg-gradient-to-r from-slate-500 to-gray-500 flex justify-center items-center text-white font-bold">
-                      {{ index + 1 }}
+                      {{ item.data.id }}
                     </div>
-                  </template>
+                  </div>
                 </div>
                 <div class="flex flex-col gap-2">
                   <div>{{ item.data.widget_name }}</div>
