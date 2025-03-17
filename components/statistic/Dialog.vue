@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { Message } from '~/types/chats';
+
 const chatStore = useChatStore()
 
 const props = defineProps<{
@@ -25,33 +27,33 @@ watch(() => props.chatId, (newChatId) => {
       {{ widgetName }}
     </div>
     <div v-if="messagesData">
-      <div class="flex bg-gray-100 flex-col max-h-[700px] space-y-4 px-14 py-12 overflow-y-auto chat-container">
-      <div v-if="chatStore.hasMessages">
-        <div
-          v-for="item in messagesData"
-          :key="item.id"
-          :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
-        >
+      <div class="flex bg-gray-100 flex-col h-[570px] space-y-4 px-14 py-12 overflow-y-auto chat-container">
+        <div v-if="chatStore.hasMessages">
           <div
-            :class="[
-              'p-5 rounded-lg max-w-[70%] min-w-[35%] flex flex-col gap-2 border',
-              item.sender === 'user' ? 'bg-slate-500 text-white' : 'bg-blue-100 text-black'
-            ]">
-            <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-              <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
-            </div>
-            <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-              <p v-if="item.sender === 'user'" class="text-lg">{{ item.message }}</p>
-              <p v-else class="text-lg" v-html="item.message"></p>
-            </div>
-            <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
-              <span class="text-xs">{{ $dayjs(item.date).format('HH:mm:ss DD.MM.YY') }}</span>
+            v-for="item in messagesData"
+            :key="item.id"
+            :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']"
+          >
+            <div
+              :class="[
+                'p-5 rounded-lg max-w-[70%] min-w-[35%] flex flex-col gap-2 border my-2',
+                item.sender === 'user' ? 'bg-slate-500 text-white' : 'bg-blue-100 text-black'
+              ]">
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <span class="text-xl capitalize font-bold">{{ item.sender }}</span>
+              </div>
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <p v-if="item.sender === 'user'" class="text-lg">{{ item.message }}</p>
+                <p v-else class="text-lg" v-html="item.message"></p>
+              </div>
+              <div :class="['flex', item.sender === 'user' ? 'justify-start' : 'justify-end']">
+                <span class="text-xs">{{ $dayjs(item.date).format('HH:mm:ss DD.MM.YY') }}</span>
+              </div>
             </div>
           </div>
         </div>
+        <div v-else>Чат пустой</div>
       </div>
-      <div v-else>Чат пустой</div>
-    </div>
     </div>
       
     <div v-else>

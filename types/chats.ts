@@ -9,7 +9,6 @@ interface Chat {
 
 export interface ChatPreview extends Chat {
   widget_name: string
-  icon: WidgetIcon
 }
 
 export interface ChatInfo extends Chat {
