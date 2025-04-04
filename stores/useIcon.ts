@@ -68,7 +68,7 @@ export const useIconStore = defineStore('icons', () => {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await $fetch('/api/widgets/icons/upload', {
+      const response = await $fetch<WidgetIcon>('/api/widgets/icons/upload', {
         method: 'POST',
         credentials: 'include',
         body: formData,
@@ -76,11 +76,15 @@ export const useIconStore = defineStore('icons', () => {
           'Accept': 'application/json',
         }
       })
+
+      if (response) {
+        customIcons.value.push(response)
+      }
       
       return response
     } catch (err: any) {
       errorMessage.value = err.response?._data?.data?.error || 'Неизвестная ошибка'
-      throw err;
+      throw err
     } finally {
       isLoading.value = false
     }
@@ -116,6 +120,8 @@ export const useIconStore = defineStore('icons', () => {
         credentials: 'include',
         body: { iconId }
       })
+
+      customIcons.value = customIcons.value.filter(icon => icon.id !== iconId)
 
       return response
     } catch (err: any) {
