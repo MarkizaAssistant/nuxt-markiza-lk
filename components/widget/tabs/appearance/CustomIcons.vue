@@ -113,10 +113,10 @@ function handleFileUpload (event: Event) {
                 </button>
               </div>
               <div class="flex justify-center">
-                <template v-if="isImage(icon.url)">
+                <template v-if="isImage(String(icon.url))">
                   <img :src="`https://api.yamarkiza.ru/${icon.url}`" :alt="icon.name" class="size-16 object-contain" />
                 </template>
-                <template v-else-if="isVideo(icon.url)">
+                <template v-else-if="isVideo(String(icon.url))">
                   <video autoplay loop muted playsinline class="size-16 object-contain">
                     <source :src="`https://api.yamarkiza.ru/${icon.url}`" />
                   </video>

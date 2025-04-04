@@ -11,16 +11,9 @@ defineProps<{
 
 const emit = defineEmits(['select-icon', 'update-position'])
 
-const { data: baseIcons } = await useAsyncData('baseIcons', async () => {
-  return await iconStore.fetchBaseIcons()
-}, {
-  server: false
-})
-
-const { data: customIcons } = await useAsyncData('customIcons', async () => {
-  return await iconStore.fetchCustomIcons()
-}, {
-  server: false
+onMounted(async () => {
+  await iconStore.fetchBaseIcons()
+  await iconStore.fetchCustomIcons()
 })
 
 function handleSelectIcon (payload: { type: 'base_icon' | 'icon'; icon: WidgetIcon }) {
@@ -62,9 +55,9 @@ function updatePosition (value: boolean) {
 <template>
   <div class="flex flex-col gap-4 overflow-y-auto h-[600px] table-container pr-2">
     <div class="border border-gray-300 rounded-lg shadow-sm p-4">
-      <div v-if="baseIcons">
+      <div v-if="iconStore.baseIcons">
         <WidgetTabsAppearanceBaseIcons
-          :base-icons="baseIcons"
+          :base-icons="iconStore.baseIcons"
           :selected-icon="selectedIcon"
           :has-base-icons="iconStore.hasBaseIcons"
           @select-icon="handleSelectIcon"
@@ -72,9 +65,9 @@ function updatePosition (value: boolean) {
       </div>
       <div v-else>Загрузка базовых иконок...</div>
   
-      <div v-if="customIcons">
+      <div v-if="iconStore.customIcons">
         <WidgetTabsAppearanceCustomIcons
-          :user-icons="customIcons"
+          :user-icons="iconStore.customIcons"
           :selected-icon="selectedIcon"
           :has-custom-icons="iconStore.hasCustomIcons"
           @select-icon="handleSelectIcon"
