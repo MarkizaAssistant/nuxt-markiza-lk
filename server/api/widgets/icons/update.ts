@@ -2,6 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const csrftoken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
+  const referer = getHeader(event, 'referer') || 'https://lk.yamarkiza.ru'
 
   const { iconId, newName  } = await readBody(event)
 
@@ -20,6 +21,7 @@ export default defineEventHandler(async (event) => {
       headers: {
         'Cookie': `csrftoken=${csrftoken}; sessionid=${sessionid}`,
         'X-CSRFToken': csrftoken,
+        'Referer': referer,
       },
       body: {
         name: newName,

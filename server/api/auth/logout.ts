@@ -2,6 +2,7 @@ export default defineEventHandler(async (event): Promise<any> => {
   const config = useRuntimeConfig()
   const csrfToken = getCookie(event, 'csrftoken')
   const sessionid = getCookie(event, 'sessionid')
+  const referer = getHeader(event, 'referer') || 'https://lk.yamarkiza.ru'
 
   try {
     if (!csrfToken || !sessionid) {
@@ -18,6 +19,7 @@ export default defineEventHandler(async (event): Promise<any> => {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrfToken,
+        'Referer': referer,
         'Cookie': `csrftoken=${csrfToken}; sessionid=${sessionid}`
       },
       credentials: 'include',

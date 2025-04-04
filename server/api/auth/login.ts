@@ -1,6 +1,7 @@
 export default defineEventHandler(async (event): Promise<any> => {
   const config = useRuntimeConfig()
   const csrftoken = getCookie(event, 'csrftoken')
+  const referer = getHeader(event, 'referer') || 'https://lk.yamarkiza.ru'
 
   const { username, password } = await readBody(event)
 
@@ -13,6 +14,7 @@ export default defineEventHandler(async (event): Promise<any> => {
       headers: {
         'Content-Type': 'application/json',
         'X-CSRFToken': csrftoken ?? '',
+        'Referer': referer,
       },
       body: { username, password },
       credentials: 'include',
